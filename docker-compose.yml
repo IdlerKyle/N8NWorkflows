@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: crm_postgres
+    environment:
+      POSTGRES_DB: crm_db
+      POSTGRES_USER: crm
+      POSTGRES_PASSWORD: strongpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm -d crm_db"]
+      interval: 5s
+      retries: 5
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: crm_n8n
+    environment:
+      DB_TYPE: postgres
+      DB_POSTGRESDB: crm_db
+      DB_POSTGRES_USER: crm
+      DB_POSTGRES_PASSWORD: strongpassword
+      DB_POSTGRES_HOST: postgres
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_USER: kyle@example.com
+      N8N_PASSWORD: supersecret123
+      N8N_HOST: n8n.local
+      N8N_PORT: 5678
+      N8N_API_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5NGI1YjlmZC04NTAzLTQ0ZTktOGQ5Zi1kMjQzNmJkN2ExYjIiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiNmM4ZmIwYjItYTE1Zi00ZjAyLWI3NjAtNDY2MDQ1MWY4ZWY1IiwiaWF0IjoxNzcyNzAwNTgwfQ.FS9N54insH0pZaeVSzGqozLoCUX09t645h9ndf9h0nE
+      N8N_GIT_ENABLED: "true"
+      N8N_GIT_SYNC_ENABLED: "true"
+      GENERIC_TIMEZONE: "Asia/Manila"
+    depends_on:
+      - postgres
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
