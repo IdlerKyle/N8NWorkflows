@@ -270,7 +270,7 @@
             "value": "={{ $json.repo_name }}",
             "mode": ""
           },
-          "filePath": "={{ $('Code in JavaScript').item.json.name }}.json",
+          "filePath": "={{ $json.name }}.json",
           "asBinaryProperty": false,
           "additionalParameters": {}
         },
@@ -1043,7 +1043,7 @@
           "value": "={{ $json.repo_name }}",
           "mode": ""
         },
-        "filePath": "={{ $('Code in JavaScript').item.json.name }}.json",
+        "filePath": "={{ $json.name }}.json",
         "asBinaryProperty": false,
         "additionalParameters": {}
       },
