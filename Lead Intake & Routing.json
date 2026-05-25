@@ -1,546 +1,290 @@
 {
   "active": true,
   "activeVersion": {
-    "updatedAt": "2026-05-21T12:20:30.351Z",
-    "createdAt": "2026-05-21T12:14:57.057Z",
-    "versionId": "b55a3723-5d23-445e-afe7-9cfca3a7d1a6",
-    "workflowId": "ZJF3517SFGi5beZo",
+    "updatedAt": "2026-05-19T17:34:28.363Z",
+    "createdAt": "2026-05-19T17:30:08.018Z",
+    "versionId": "33376954-e559-4e53-8ebd-520b6656f6c6",
+    "workflowId": "gMUCY0UlwcwwubCu",
     "nodes": [
       {
         "parameters": {
-          "content": "## Subworkflow",
-          "height": 731.7039821513649,
-          "width": 1910.7813046051347,
-          "color": 6
-        },
-        "id": "28f22a18-398a-40df-919f-d091e07c95a5",
-        "name": "Sticky Note",
-        "type": "n8n-nodes-base.stickyNote",
-        "position": [
-          304,
-          -240
-        ],
-        "typeVersion": 1
-      },
-      {
-        "parameters": {
-          "assignments": {
-            "assignments": [
+          "pollTimes": {
+            "item": [
               {
-                "id": "8d513345-6484-431f-afb7-7cf045c90f4f",
-                "name": "Done",
-                "type": "boolean",
-                "value": true
+                "mode": "everyMinute"
               }
             ]
           },
-          "options": {}
+          "filters": {}
         },
-        "id": "0f9fb504-bb61-4ef6-91cc-14a895dea852",
-        "name": "Return",
-        "type": "n8n-nodes-base.set",
+        "type": "n8n-nodes-base.gmailTrigger",
+        "typeVersion": 1.4,
         "position": [
-          2320,
-          -32
+          0,
+          0
         ],
-        "typeVersion": 3.3
+        "id": "1712b240-0485-445c-ab9c-1cd3aa7b2155",
+        "name": "Gmail Trigger",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "WVpfsoMyzR6zfgi5",
+            "name": "Gmail account"
+          }
+        }
       },
       {
         "parameters": {
-          "url": "={{ $json.download_url }}",
-          "options": {}
-        },
-        "id": "9b3882cb-4a69-4758-9c18-afcd90d87544",
-        "name": "Get File",
-        "type": "n8n-nodes-base.httpRequest",
-        "position": [
-          992,
-          -160
-        ],
-        "typeVersion": 4.2
-      },
-      {
-        "parameters": {
-          "conditions": {
-            "options": {
-              "caseSensitive": true,
-              "leftValue": "",
-              "typeValidation": "strict",
-              "version": 1
-            },
-            "conditions": [
-              {
-                "id": "45ce825e-9fa6-430c-8931-9aaf22c42585",
-                "operator": {
-                  "type": "string",
-                  "operation": "empty",
-                  "singleValue": true
-                },
-                "leftValue": "={{ $json.content }}",
-                "rightValue": ""
-              },
-              {
-                "id": "9619a55f-7fb1-4f24-b1a7-7aeb82365806",
-                "operator": {
-                  "type": "string",
-                  "operation": "notExists",
-                  "singleValue": true
-                },
-                "leftValue": "={{ $json.error }}",
-                "rightValue": ""
-              }
-            ],
-            "combinator": "and"
+          "modelId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "models/gemini-3-flash-preview"
           },
+          "messages": {
+            "values": [
+              {
+                "content": "     Classify this email into exactly one category: SALES, SUPPORT, SPAM, or URGENT.\n     Reply with ONLY the category word, nothing else.\n     Email subject: {{ $json.subject }}\n     Email body: {{ $json.snippet || $json.textPlain }}"
+              }
+            ]
+          },
+          "builtInTools": {},
           "options": {}
         },
-        "id": "14275710-70aa-48db-a3ed-e4a71e852005",
-        "name": "If file too large",
-        "type": "n8n-nodes-base.if",
+        "type": "@n8n/n8n-nodes-langchain.googleGemini",
+        "typeVersion": 1.2,
         "position": [
-          752,
-          -144
+          208,
+          0
         ],
-        "typeVersion": 2
-      },
-      {
-        "parameters": {},
-        "id": "e3b5ad41-30a2-42a9-bc78-1f0627e9d9d0",
-        "name": "Merge Items",
-        "type": "n8n-nodes-base.merge",
-        "position": [
-          752,
-          128
-        ],
-        "typeVersion": 2
+        "id": "4e35f9e6-bd0b-445c-83c5-fd67d8a9bba2",
+        "name": "Message a model",
+        "credentials": {
+          "googlePalmApi": {
+            "id": "0sicXWlefaiG04U7",
+            "name": "Google Gemini(PaLM) Api account"
+          }
+        }
       },
       {
         "parameters": {
-          "jsCode": "const orderJsonKeys = (obj) => {\n  return Object.keys(obj)\n    .sort()\n    .reduce((acc, key) => {\n      acc[key] = obj[key];\n      return acc;\n    }, {});\n};\n\nconst githubItem = $input.all()[0].json;\n// Grab sha from the original Get file data node if missing\nif (!githubItem.sha) {\n  githubItem.sha = $('Get file data').first().json.sha;\n}\nconst workflowItem = $input.all()[1].json;\n\n// If GitHub returned a file\nif (githubItem.content || githubItem.data) {\n\n  const decoded = githubItem.content\n    ? JSON.parse(Buffer.from(githubItem.content, \"base64\").toString())\n    : JSON.parse(githubItem.data);\n\n  const orderedOriginal = orderJsonKeys(decoded);\n  const orderedActual = orderJsonKeys(workflowItem);\n\n  if (JSON.stringify(orderedOriginal) === JSON.stringify(orderedActual)) {\n    githubItem.github_status = \"same\";\n  } else {\n    githubItem.github_status = \"different\";\n    githubItem.n8n_data_stringy = JSON.stringify(orderedActual, null, 2);\n  }\n\n  githubItem.content_decoded = orderedOriginal;\n\n} else {\n\n  // File does not exist in GitHub\n  const orderedActual = orderJsonKeys(workflowItem);\n\n  githubItem.github_status = \"new\";\n  githubItem.n8n_data_stringy = JSON.stringify(orderedActual, null, 2);\n}\n\nreturn $input.all();"
+          "mode": "raw",
+          "jsonOutput": "={\n  \"category\": {{ $json.content.parts[0].text }}\n}\n ",
+          "options": {}
         },
-        "id": "a6088741-86be-4f6d-907c-30197babb0f4",
-        "name": "isDiffOrNew",
-        "type": "n8n-nodes-base.code",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
         "position": [
-          944,
-          128
+          496,
+          0
         ],
-        "typeVersion": 1
+        "id": "238cbbea-961e-4ccd-ac0c-bc28939df8b7",
+        "name": "Edit Fields"
       },
       {
         "parameters": {
-          "dataType": "string",
-          "value1": "={{$json.github_status}}",
           "rules": {
-            "rules": [
+            "values": [
               {
-                "value2": "same"
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "={{ $json.category }}",
+                      "rightValue": "SALES",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "245d0603-c778-4fbd-af37-01145a33a824"
+                    }
+                  ],
+                  "combinator": "and"
+                }
               },
               {
-                "value2": "different",
-                "output": 1
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "8b3d90a6-d25f-4a2b-a161-c6ea7d539a2a",
+                      "leftValue": "={{ $json.category }}",
+                      "rightValue": "SUPPORT",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
               },
               {
-                "value2": "new",
-                "output": 2
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "244085bf-9569-4d27-9e37-6c4fd47b15a4",
+                      "leftValue": "={{ $json.category }}",
+                      "rightValue": "SPAM",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "05a9b1ad-efb5-4383-becc-d59a0bef27ca",
+                      "leftValue": "={{ $json.category }}",
+                      "rightValue": "URGENT",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
               }
             ]
-          }
+          },
+          "options": {}
         },
-        "id": "ad9dcc6a-3ab4-49b9-95f9-e622cea0f9fe",
-        "name": "Check Status",
         "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
         "position": [
-          1344,
-          128
-        ],
-        "typeVersion": 1
-      },
-      {
-        "parameters": {},
-        "id": "b327a17f-bf56-40c2-a138-3326b758db05",
-        "name": "Same file - Do nothing",
-        "type": "n8n-nodes-base.noOp",
-        "position": [
-          1568,
+          784,
           -32
         ],
-        "typeVersion": 1
-      },
-      {
-        "parameters": {},
-        "id": "6d5a347d-3624-4ed2-b6a5-1b2b42f80cdb",
-        "name": "File is different",
-        "type": "n8n-nodes-base.noOp",
-        "position": [
-          1568,
-          128
-        ],
-        "typeVersion": 1
-      },
-      {
-        "parameters": {},
-        "id": "f36551cf-4fa4-4f22-bf13-629d87c5fcde",
-        "name": "File is new",
-        "type": "n8n-nodes-base.noOp",
-        "position": [
-          1568,
-          320
-        ],
-        "typeVersion": 1
+        "id": "3b4663e7-4f94-4f1d-a008-3d032de2e57a",
+        "name": "Switch"
       },
       {
         "parameters": {
-          "resource": "file",
-          "owner": {
-            "__rl": true,
-            "value": "={{ $('Config').item.json.repo_owner }}",
-            "mode": ""
-          },
-          "repository": {
-            "__rl": true,
-            "value": "={{ $('Config').item.json.repo_name }}",
-            "mode": ""
-          },
-          "filePath": "={{ $('Config').item.json.name }}.json",
-          "fileContent": "={{ $json.n8n_data_stringy }}",
-          "commitMessage": "= ({{$json.github_status}})"
+          "operation": "reply",
+          "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+          "message": "Thanks for reaching out — we've received your message and a member of our support team will get back to you shortly. This is an automated confirmation.",
+          "options": {}
         },
-        "id": "1488ebd2-7fdd-4a9e-8e67-85edc9e6e5ab",
-        "name": "Create new file",
-        "type": "n8n-nodes-base.github",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
         "position": [
-          1792,
-          320
+          1168,
+          -208
         ],
-        "typeVersion": 1,
-        "webhookId": "bbf3ca75-d5da-45ee-ac1e-b097f7adc616",
+        "id": "d5938a49-59d8-4783-b06a-919bc0d0cd05",
+        "name": "Reply to a message",
+        "webhookId": "59bae00a-36af-491f-8c5c-fd3062d00113",
         "credentials": {
-          "githubApi": {
-            "id": "OjgMhlYfLh6mraWT",
-            "name": "GitHub account"
+          "gmailOAuth2": {
+            "id": "WVpfsoMyzR6zfgi5",
+            "name": "Gmail account"
           }
         }
       },
       {
         "parameters": {
-          "resource": "file",
-          "operation": "get",
-          "owner": {
-            "__rl": true,
-            "value": "={{ $json.repo_owner }}",
-            "mode": ""
-          },
-          "repository": {
-            "__rl": true,
-            "value": "={{ $json.repo_name }}",
-            "mode": ""
-          },
-          "filePath": "=",
-          "asBinaryProperty": false,
-          "additionalParameters": {}
-        },
-        "id": "3bdd7938-e859-4e29-867b-e04beb60fd28",
-        "name": "Get file data",
-        "type": "n8n-nodes-base.github",
-        "position": [
-          544,
-          -144
-        ],
-        "typeVersion": 1,
-        "alwaysOutputData": true,
-        "webhookId": "569f1eb5-de34-43ea-b1a6-bb33c7d651c6",
-        "credentials": {
-          "githubApi": {
-            "id": "OjgMhlYfLh6mraWT",
-            "name": "GitHub account"
-          }
-        },
-        "continueOnFail": true
-      },
-      {
-        "parameters": {
-          "assignments": {
-            "assignments": [
-              {
-                "id": "8f6d1741-772f-462a-811f-4c334185e4f0",
-                "name": "repo_owner",
-                "type": "string",
-                "value": "=IdlerKyle"
-              },
-              {
-                "id": "8cac215c-4fd7-422f-9fd2-6b2d1e5e0383",
-                "name": "repo_name",
-                "type": "string",
-                "value": "=N8nWorkflows"
-              },
-              {
-                "id": "eee305e9-4164-462a-86bd-80f0d58a31ae",
-                "name": "repo_path",
-                "type": "string",
-                "value": "={{ $json.name }}.json"
-              }
-            ]
-          },
-          "includeOtherFields": true,
+          "sendTo": "khazix0303@gmail.com",
+          "subject": "=[URGENT] New email needs attention:{{ $('Gmail Trigger').item.json.Subject }}",
+          "message": "=A new email was classified as URGENT. \nFrom: {{ $('Gmail Trigger').item.json.From }}\nSubject:{{ $('Gmail Trigger').item.json.Subject }}\nPreview:{{ $('Gmail Trigger').item.json.snippet }}",
           "options": {}
         },
-        "id": "4898c7a9-0575-45d2-98da-6a90266bfcb5",
-        "name": "Config",
-        "type": "n8n-nodes-base.set",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
         "position": [
-          544,
-          144
+          1168,
+          256
         ],
-        "typeVersion": 3.4
-      },
-      {
-        "parameters": {
-          "inputSource": "passthrough"
-        },
-        "type": "n8n-nodes-base.executeWorkflowTrigger",
-        "typeVersion": 1.1,
-        "position": [
-          336,
-          144
-        ],
-        "id": "cf7f3397-cdee-41c0-a6ee-5465d4068041",
-        "name": "When Executed by Another Workflow"
-      },
-      {
-        "parameters": {
-          "method": "PUT",
-          "url": "=https://api.github.com/repos/{{ $('Config').item.json.repo_owner }}/{{ $('Config').item.json.repo_name }}/contents/{{ $('If file too large').item.json.name }}",
-          "authentication": "predefinedCredentialType",
-          "nodeCredentialType": "githubApi",
-          "sendBody": true,
-          "bodyParameters": {
-            "parameters": [
-              {
-                "name": "sha",
-                "value": "={{ $json.sha }}"
-              },
-              {
-                "name": "content",
-                "value": "={{ $json.encoded_content }}"
-              },
-              {
-                "name": "message",
-                "value": "new"
-              }
-            ]
-          },
-          "options": {}
-        },
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.4,
-        "position": [
-          2000,
-          144
-        ],
-        "id": "c8db74cc-2cb2-4e35-b2ba-42fbd3cedfd2",
-        "name": "HTTP Request",
+        "id": "d6d55139-43d8-4e65-9cc2-290326952b1d",
+        "name": "Send a message",
+        "webhookId": "7c1ccdbc-130c-48ae-8ef8-71e764d08d31",
         "credentials": {
-          "githubApi": {
-            "id": "OjgMhlYfLh6mraWT",
-            "name": "GitHub account"
+          "gmailOAuth2": {
+            "id": "WVpfsoMyzR6zfgi5",
+            "name": "Gmail account"
           }
         }
-      },
-      {
-        "parameters": {
-          "jsCode": "const item = $input.first().json;\nitem.encoded_content = Buffer.from(item.n8n_data_stringy).toString('base64');\nreturn [$input.first()];"
-        },
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          1776,
-          144
-        ],
-        "id": "42b3d649-fd1f-4f3a-bb18-750cbd3b709e",
-        "name": "convert base64"
       }
     ],
     "connections": {
-      "When Executed by Another Workflow": {
+      "Gmail Trigger": {
         "main": [
           [
             {
-              "node": "Config",
+              "node": "Message a model",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Config": {
+      "Message a model": {
         "main": [
           [
             {
-              "node": "Get file data",
-              "type": "main",
-              "index": 0
-            },
-            {
-              "node": "Merge Items",
-              "type": "main",
-              "index": 1
-            }
-          ]
-        ]
-      },
-      "Get file data": {
-        "main": [
-          [
-            {
-              "node": "If file too large",
+              "node": "Edit Fields",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "If file too large": {
+      "Edit Fields": {
         "main": [
           [
             {
-              "node": "Get File",
+              "node": "Switch",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Switch": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [],
+          [
+            {
+              "node": "Reply to a message",
               "type": "main",
               "index": 0
             }
           ],
           [
             {
-              "node": "Merge Items",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Get File": {
-        "main": [
-          [
-            {
-              "node": "Merge Items",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Merge Items": {
-        "main": [
-          [
-            {
-              "node": "isDiffOrNew",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "isDiffOrNew": {
-        "main": [
-          [
-            {
-              "node": "Check Status",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Check Status": {
-        "main": [
-          [
-            {
-              "node": "Same file - Do nothing",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "File is different",
-              "type": "main",
-              "index": 0
-            }
-          ],
-          [
-            {
-              "node": "File is new",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Same file - Do nothing": {
-        "main": [
-          [
-            {
-              "node": "Return",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "File is different": {
-        "main": [
-          [
-            {
-              "node": "Return",
-              "type": "main",
-              "index": 0
-            },
-            {
-              "node": "convert base64",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "File is new": {
-        "main": [
-          [
-            {
-              "node": "Create new file",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Create new file": {
-        "main": [
-          [
-            {
-              "node": "Return",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "HTTP Request": {
-        "main": [
-          [
-            {
-              "node": "Return",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "convert base64": {
-        "main": [
-          [
-            {
-              "node": "HTTP Request",
+              "node": "Send a message",
               "type": "main",
               "index": 0
             }
@@ -549,186 +293,65 @@
       }
     },
     "authors": "Kyle Dumipnas",
-    "name": "Version b55a3723",
-    "description": "converted the github edit file with an http request to support the sha",
-    "autosaved": false
+    "name": "Finished the Email sorter",
+    "description": "Project complete",
+    "autosaved": true
   },
-  "activeVersionId": "b55a3723-5d23-445e-afe7-9cfca3a7d1a6",
+  "activeVersionId": "33376954-e559-4e53-8ebd-520b6656f6c6",
   "connections": {
-    "When Executed by Another Workflow": {
+    "Gmail Trigger": {
       "main": [
         [
           {
-            "node": "Config",
+            "node": "Message a model",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Config": {
+    "Message a model": {
       "main": [
         [
           {
-            "node": "Get file data",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Merge Items",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Get file data": {
-      "main": [
-        [
-          {
-            "node": "If file too large",
+            "node": "Edit Fields",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "If file too large": {
+    "Edit Fields": {
       "main": [
         [
           {
-            "node": "Get File",
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Reply to a message",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Merge Items",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get File": {
-      "main": [
-        [
-          {
-            "node": "Merge Items",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge Items": {
-      "main": [
-        [
-          {
-            "node": "isDiffOrNew",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "isDiffOrNew": {
-      "main": [
-        [
-          {
-            "node": "Check Status",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check Status": {
-      "main": [
-        [
-          {
-            "node": "Same file - Do nothing",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "File is different",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "File is new",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Same file - Do nothing": {
-      "main": [
-        [
-          {
-            "node": "Return",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "File is different": {
-      "main": [
-        [
-          {
-            "node": "convert base64",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "File is new": {
-      "main": [
-        [
-          {
-            "node": "Create new file",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Create new file": {
-      "main": [
-        [
-          {
-            "node": "Return",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP Request": {
-      "main": [
-        [
-          {
-            "node": "Return",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "convert base64": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request",
+            "node": "Send a message",
             "type": "main",
             "index": 0
           }
@@ -736,388 +359,269 @@
       ]
     }
   },
-  "createdAt": "2026-05-20T09:45:00.423Z",
-  "id": "ZJF3517SFGi5beZo",
+  "createdAt": "2026-05-19T12:30:12.542Z",
+  "id": "gMUCY0UlwcwwubCu",
   "isArchived": false,
   "meta": {
     "templateCredsSetupCompleted": true
   },
-  "name": "Push Multiple Files to Github Repo via Github REST API",
+  "name": "Email TriAgent",
   "nodes": [
     {
       "parameters": {
-        "content": "## Subworkflow",
-        "height": 731.7039821513649,
-        "width": 1910.7813046051347,
-        "color": 6
-      },
-      "id": "28f22a18-398a-40df-919f-d091e07c95a5",
-      "name": "Sticky Note",
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        304,
-        -240
-      ],
-      "typeVersion": 1
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
+        "pollTimes": {
+          "item": [
             {
-              "id": "8d513345-6484-431f-afb7-7cf045c90f4f",
-              "name": "Done",
-              "type": "boolean",
-              "value": true
+              "mode": "everyMinute"
             }
           ]
         },
-        "options": {}
+        "filters": {}
       },
-      "id": "0f9fb504-bb61-4ef6-91cc-14a895dea852",
-      "name": "Return",
-      "type": "n8n-nodes-base.set",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
       "position": [
-        2320,
-        -32
+        0,
+        0
       ],
-      "typeVersion": 3.3
+      "id": "1712b240-0485-445c-ab9c-1cd3aa7b2155",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WVpfsoMyzR6zfgi5",
+          "name": "Gmail account"
+        }
+      }
     },
     {
       "parameters": {
-        "url": "={{ $json.download_url }}",
-        "options": {}
-      },
-      "id": "9b3882cb-4a69-4758-9c18-afcd90d87544",
-      "name": "Get File",
-      "type": "n8n-nodes-base.httpRequest",
-      "position": [
-        992,
-        -160
-      ],
-      "typeVersion": 4.2
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 1
-          },
-          "conditions": [
-            {
-              "id": "45ce825e-9fa6-430c-8931-9aaf22c42585",
-              "operator": {
-                "type": "string",
-                "operation": "notEmpty",
-                "singleValue": true
-              },
-              "leftValue": "={{ $json.content }}",
-              "rightValue": ""
-            },
-            {
-              "id": "9619a55f-7fb1-4f24-b1a7-7aeb82365806",
-              "operator": {
-                "type": "string",
-                "operation": "notExists",
-                "singleValue": true
-              },
-              "leftValue": "={{ $json.error }}",
-              "rightValue": ""
-            }
-          ],
-          "combinator": "and"
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-3-flash-preview"
         },
+        "messages": {
+          "values": [
+            {
+              "content": "     Classify this email into exactly one category: SALES, SUPPORT, SPAM, or URGENT.\n     Reply with ONLY the category word, nothing else.\n     Email subject: {{ $json.subject }}\n     Email body: {{ $json.snippet || $json.textPlain }}"
+            }
+          ]
+        },
+        "builtInTools": {},
         "options": {}
       },
-      "id": "14275710-70aa-48db-a3ed-e4a71e852005",
-      "name": "If file too large",
-      "type": "n8n-nodes-base.if",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
       "position": [
-        752,
-        -144
+        208,
+        0
       ],
-      "typeVersion": 2
-    },
-    {
-      "parameters": {},
-      "id": "e3b5ad41-30a2-42a9-bc78-1f0627e9d9d0",
-      "name": "Merge Items",
-      "type": "n8n-nodes-base.merge",
-      "position": [
-        752,
-        128
-      ],
-      "typeVersion": 2
+      "id": "4e35f9e6-bd0b-445c-83c5-fd67d8a9bba2",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0sicXWlefaiG04U7",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
     },
     {
       "parameters": {
-        "jsCode": "const orderJsonKeys = (obj) => {\n  return Object.keys(obj)\n    .sort()\n    .reduce((acc, key) => {\n      acc[key] = obj[key];\n      return acc;\n    }, {});\n};\n\nconst githubItem = $input.all()[0].json;\nconst workflowItem = $input.all()[1].json;\nconst orderedActual = orderJsonKeys(workflowItem);\n\n// Check if file exists in GitHub (has sha means it exists)\nif (githubItem.sha) {\n\n  let decoded;\n  if (githubItem.content) {\n    decoded = JSON.parse(Buffer.from(githubItem.content, \"base64\").toString());\n  } else if (githubItem.data) {\n    decoded = JSON.parse(githubItem.data);\n  }\n\n  if (decoded) {\n    const orderedOriginal = orderJsonKeys(decoded);\n    if (JSON.stringify(orderedOriginal) === JSON.stringify(orderedActual)) {\n      githubItem.github_status = \"same\";\n    } else {\n      githubItem.github_status = \"different\";\n      githubItem.n8n_data_stringy = JSON.stringify(orderedActual, null, 2);\n    }\n    githubItem.content_decoded = orderedOriginal;\n  } else {\n    // Has sha but couldn't decode - treat as different\n    githubItem.github_status = \"different\";\n    githubItem.n8n_data_stringy = JSON.stringify(orderedActual, null, 2);\n  }\n\n} else {\n  // No sha = file doesn't exist\n  githubItem.github_status = \"new\";\n  githubItem.n8n_data_stringy = JSON.stringify(orderedActual, null, 2);\n}\n\nreturn $input.all();"
+        "mode": "raw",
+        "jsonOutput": "={\n  \"category\": {{ $json.content.parts[0].text }}\n}\n ",
+        "options": {}
       },
-      "id": "a6088741-86be-4f6d-907c-30197babb0f4",
-      "name": "isDiffOrNew",
-      "type": "n8n-nodes-base.code",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
       "position": [
-        944,
-        128
+        496,
+        0
       ],
-      "typeVersion": 1
+      "id": "238cbbea-961e-4ccd-ac0c-bc28939df8b7",
+      "name": "Edit Fields"
     },
     {
       "parameters": {
-        "dataType": "string",
-        "value1": "={{$json.github_status}}",
         "rules": {
-          "rules": [
+          "values": [
             {
-              "value2": "same"
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "SALES",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "245d0603-c778-4fbd-af37-01145a33a824"
+                  }
+                ],
+                "combinator": "and"
+              }
             },
             {
-              "value2": "different",
-              "output": 1
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "8b3d90a6-d25f-4a2b-a161-c6ea7d539a2a",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "SUPPORT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
             },
             {
-              "value2": "new",
-              "output": 2
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "244085bf-9569-4d27-9e37-6c4fd47b15a4",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "SPAM",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "05a9b1ad-efb5-4383-becc-d59a0bef27ca",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "URGENT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
             }
           ]
-        }
+        },
+        "options": {}
       },
-      "id": "ad9dcc6a-3ab4-49b9-95f9-e622cea0f9fe",
-      "name": "Check Status",
       "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
       "position": [
-        1344,
-        128
-      ],
-      "typeVersion": 1
-    },
-    {
-      "parameters": {},
-      "id": "b327a17f-bf56-40c2-a138-3326b758db05",
-      "name": "Same file - Do nothing",
-      "type": "n8n-nodes-base.noOp",
-      "position": [
-        1568,
+        784,
         -32
       ],
-      "typeVersion": 1
-    },
-    {
-      "parameters": {},
-      "id": "6d5a347d-3624-4ed2-b6a5-1b2b42f80cdb",
-      "name": "File is different",
-      "type": "n8n-nodes-base.noOp",
-      "position": [
-        1568,
-        128
-      ],
-      "typeVersion": 1
-    },
-    {
-      "parameters": {},
-      "id": "f36551cf-4fa4-4f22-bf13-629d87c5fcde",
-      "name": "File is new",
-      "type": "n8n-nodes-base.noOp",
-      "position": [
-        1568,
-        320
-      ],
-      "typeVersion": 1
+      "id": "3b4663e7-4f94-4f1d-a008-3d032de2e57a",
+      "name": "Switch"
     },
     {
       "parameters": {
-        "resource": "file",
-        "owner": {
-          "__rl": true,
-          "value": "={{ $('Config').item.json.repo_owner }}",
-          "mode": ""
-        },
-        "repository": {
-          "__rl": true,
-          "value": "={{ $('Config').item.json.repo_name }}",
-          "mode": ""
-        },
-        "filePath": "={{ $('Config').item.json.name }}.json",
-        "fileContent": "={{ $json.n8n_data_stringy }}",
-        "commitMessage": "= ({{$json.github_status}})"
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "message": "Thanks for reaching out — we've received your message and a member of our support team will get back to you shortly. This is an automated confirmation.",
+        "options": {}
       },
-      "id": "1488ebd2-7fdd-4a9e-8e67-85edc9e6e5ab",
-      "name": "Create new file",
-      "type": "n8n-nodes-base.github",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
       "position": [
-        1792,
-        320
+        1168,
+        -208
       ],
-      "typeVersion": 1,
-      "webhookId": "bbf3ca75-d5da-45ee-ac1e-b097f7adc616",
+      "id": "d5938a49-59d8-4783-b06a-919bc0d0cd05",
+      "name": "Reply to a message",
+      "webhookId": "59bae00a-36af-491f-8c5c-fd3062d00113",
       "credentials": {
-        "githubApi": {
-          "id": "OjgMhlYfLh6mraWT",
-          "name": "GitHub account"
+        "gmailOAuth2": {
+          "id": "WVpfsoMyzR6zfgi5",
+          "name": "Gmail account"
         }
       }
     },
     {
       "parameters": {
-        "resource": "file",
-        "operation": "get",
-        "owner": {
-          "__rl": true,
-          "value": "={{ $json.repo_owner }}",
-          "mode": ""
-        },
-        "repository": {
-          "__rl": true,
-          "value": "={{ $json.repo_name }}",
-          "mode": ""
-        },
-        "filePath": "=",
-        "asBinaryProperty": false,
-        "additionalParameters": {}
-      },
-      "id": "3bdd7938-e859-4e29-867b-e04beb60fd28",
-      "name": "Get file data",
-      "type": "n8n-nodes-base.github",
-      "position": [
-        544,
-        -144
-      ],
-      "typeVersion": 1,
-      "alwaysOutputData": true,
-      "webhookId": "569f1eb5-de34-43ea-b1a6-bb33c7d651c6",
-      "credentials": {
-        "githubApi": {
-          "id": "OjgMhlYfLh6mraWT",
-          "name": "GitHub account"
-        }
-      },
-      "continueOnFail": true
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "8f6d1741-772f-462a-811f-4c334185e4f0",
-              "name": "repo_owner",
-              "type": "string",
-              "value": "=IdlerKyle"
-            },
-            {
-              "id": "8cac215c-4fd7-422f-9fd2-6b2d1e5e0383",
-              "name": "repo_name",
-              "type": "string",
-              "value": "=N8nWorkflows"
-            },
-            {
-              "id": "eee305e9-4164-462a-86bd-80f0d58a31ae",
-              "name": "repo_path",
-              "type": "string",
-              "value": "={{ $json.name }}.json"
-            }
-          ]
-        },
-        "includeOtherFields": true,
+        "sendTo": "khazix0303@gmail.com",
+        "subject": "=[URGENT] New email needs attention:{{ $('Gmail Trigger').item.json.Subject }}",
+        "message": "=A new email was classified as URGENT. \nFrom: {{ $('Gmail Trigger').item.json.From }}\nSubject:{{ $('Gmail Trigger').item.json.Subject }}\nPreview:{{ $('Gmail Trigger').item.json.snippet }}",
         "options": {}
       },
-      "id": "4898c7a9-0575-45d2-98da-6a90266bfcb5",
-      "name": "Config",
-      "type": "n8n-nodes-base.set",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
       "position": [
-        544,
-        144
+        1168,
+        256
       ],
-      "typeVersion": 3.4
-    },
-    {
-      "parameters": {
-        "inputSource": "passthrough"
-      },
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "typeVersion": 1.1,
-      "position": [
-        336,
-        144
-      ],
-      "id": "cf7f3397-cdee-41c0-a6ee-5465d4068041",
-      "name": "When Executed by Another Workflow"
-    },
-    {
-      "parameters": {
-        "method": "PUT",
-        "url": "=https://api.github.com/repos/{{ $('Config').item.json.repo_owner }}/{{ $('Config').item.json.repo_name }}/contents/{{ $('If file too large').item.json.name }}",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "githubApi",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "sha",
-              "value": "={{ $json.sha }}"
-            },
-            {
-              "name": "content",
-              "value": "={{ $json.encoded_content }}"
-            },
-            {
-              "name": "message",
-              "value": "new"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        2000,
-        144
-      ],
-      "id": "c8db74cc-2cb2-4e35-b2ba-42fbd3cedfd2",
-      "name": "HTTP Request",
+      "id": "d6d55139-43d8-4e65-9cc2-290326952b1d",
+      "name": "Send a message",
+      "webhookId": "7c1ccdbc-130c-48ae-8ef8-71e764d08d31",
       "credentials": {
-        "githubApi": {
-          "id": "OjgMhlYfLh6mraWT",
-          "name": "GitHub account"
+        "gmailOAuth2": {
+          "id": "WVpfsoMyzR6zfgi5",
+          "name": "Gmail account"
         }
       }
-    },
-    {
-      "parameters": {
-        "jsCode": "const item = $input.first().json;\nitem.encoded_content = Buffer.from(item.n8n_data_stringy).toString('base64');\nreturn [$input.first()];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1776,
-        144
-      ],
-      "id": "42b3d649-fd1f-4f3a-bb18-750cbd3b709e",
-      "name": "convert base64"
     }
   ],
   "pinData": {},
   "repo_name": "N8nWorkflows",
   "repo_owner": "IdlerKyle",
-  "repo_path": "Push Multiple Files to Github Repo via Github REST API.json",
+  "repo_path": "Email TriAgent.json",
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
   "shared": [
     {
-      "updatedAt": "2026-05-20T09:45:00.423Z",
-      "createdAt": "2026-05-20T09:45:00.423Z",
+      "updatedAt": "2026-05-19T12:30:12.542Z",
+      "createdAt": "2026-05-19T12:30:12.542Z",
       "role": "workflow:owner",
-      "workflowId": "ZJF3517SFGi5beZo",
+      "workflowId": "gMUCY0UlwcwwubCu",
       "projectId": "vKFK6JoChnrNWPKt"
     }
   ],
+  "staticData": {
+    "node:Gmail Trigger": {
+      "Gmail Trigger": {
+        "lastTimeChecked": 1779701919,
+        "possibleDuplicates": [
+          "19e5e803295c3b50"
+        ],
+        "pendingMessageIds": []
+      }
+    }
+  },
   "tags": [],
-  "triggerCount": 0,
-  "updatedAt": "2026-05-25T10:47:40.785Z",
-  "versionId": "cf9cc67c-b2f5-4a9d-aa03-acc0dfa8ec6a"
+  "triggerCount": 1,
+  "updatedAt": "2026-05-19T17:34:39.054Z",
+  "versionId": "33376954-e559-4e53-8ebd-520b6656f6c6"
 }
