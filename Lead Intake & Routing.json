@@ -1,0 +1,336 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Receive Lead (Webhook)": {
+      "main": [
+        [
+          {
+            "node": "Validate & Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Score": {
+      "main": [
+        [
+          {
+            "node": "Is Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Valid?": {
+      "main": [
+        [
+          {
+            "node": "Route by Priority",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Priority": {
+      "main": [
+        [
+          {
+            "node": "Notify Sales (Hot)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add to Follow-up Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Sales (Hot)": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Follow-up Queue": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Nurture List": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-05-19T10:10:11.164Z",
+  "id": "uFkxO91asleCat7s",
+  "isArchived": false,
+  "meta": null,
+  "name": "Lead Intake & Routing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "426ae5cd-2231-4296-bdb9-7a653699c941",
+      "name": "Receive Lead (Webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -960,
+        208
+      ],
+      "webhookId": "lead-intake-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate incoming lead and compute a simple lead score.\nconst item = $input.first().json;\nconst body = item.body || item;\n\nconst name = (body.name || '').trim();\nconst email = (body.email || '').trim();\nconst phone = (body.phone || '').trim();\nconst loanAmount = Number(body.loanAmount || 0);\nconst message = (body.message || '').trim();\n\nconst errors = [];\nif (!name) errors.push('Missing name');\nif (!email || !email.includes('@')) errors.push('Invalid or missing email');\nif (!phone) errors.push('Missing phone');\n\n// Lead scoring: higher score = hotter lead.\nlet score = 0;\nif (loanAmount >= 50000) score += 50;\nelse if (loanAmount >= 10000) score += 30;\nelse if (loanAmount > 0) score += 10;\nif (phone) score += 20;\nif (message.length > 20) score += 15;\nif (email.includes('@')) score += 15;\n\nreturn [{\n  json: {\n    valid: errors.length === 0,\n    errors,\n    score,\n    priority: score >= 70 ? 'HOT' : score >= 40 ? 'WARM' : 'COLD',\n    lead: { name, email, phone, loanAmount, message, receivedAt: new Date().toISOString() }\n  }\n}];"
+      },
+      "id": "fbd16859-f4ee-45ff-817a-f956a92cbca2",
+      "name": "Validate & Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -720,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond-valid",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "aece8947-dafc-4c9a-a45a-811502bb1132",
+      "name": "Is Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "rule-hot",
+                    "leftValue": "={{ $json.priority }}",
+                    "rightValue": "HOT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "rule-warm",
+                    "leftValue": "={{ $json.priority }}",
+                    "rightValue": "WARM",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ecb51ee7-22be-4931-8fcb-6b1db553b026",
+      "name": "Route by Priority",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -240,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://httpbin.org/post",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ channel: 'sales-urgent', text: 'HOT lead: ' + $json.lead.name + ' (score ' + $json.score + ')', lead: $json.lead }) }}",
+        "options": {}
+      },
+      "id": "bf9226ad-1408-4a58-ad49-5733d522329c",
+      "name": "Notify Sales (Hot)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://httpbin.org/post",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ queue: 'follow-up', lead: $json.lead, priority: $json.priority }) }}",
+        "options": {}
+      },
+      "id": "b0b53245-1baf-4ca8-9b42-1ffdd739cc55",
+      "name": "Add to Follow-up Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://httpbin.org/post",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ list: 'nurture', lead: $json.lead }) }}",
+        "options": {}
+      },
+      "id": "ad3c58fd-92af-4818-a07e-22fcb399e638",
+      "name": "Add to Nurture List",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'accepted', priority: $json.priority, score: $json.score }) }}",
+        "options": {}
+      },
+      "id": "289a7345-0094-4efa-a865-e0bc7e2bdaf2",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        272,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'rejected', errors: $json.errors }) }}",
+        "options": {}
+      },
+      "id": "8a210ebd-589a-47b9-87e3-1668fde02532",
+      "name": "Respond Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        368
+      ]
+    }
+  ],
+  "pinData": {},
+  "repo_name": "N8nWorkflows",
+  "repo_owner": "IdlerKyle",
+  "repo_path": "Lead Intake & Routing.json",
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-05-19T10:10:11.164Z",
+      "createdAt": "2026-05-19T10:10:11.164Z",
+      "role": "workflow:owner",
+      "workflowId": "uFkxO91asleCat7s",
+      "projectId": "vKFK6JoChnrNWPKt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-05-19T10:10:11.164Z",
+  "versionId": "d2cc4458-92eb-43d8-9566-5b56fc78ba03"
+}
