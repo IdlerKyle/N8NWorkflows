@@ -1,0 +1,46 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {},
+  "createdAt": "2026-05-18T12:26:46.067Z",
+  "id": "sU2y9wvfoqHEa29f",
+  "isArchived": false,
+  "meta": null,
+  "name": "test",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "28c2fa5b-a763-4321-826b-649874ef64a8",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {},
+  "repo_name": "N8nWorkflows",
+  "repo_owner": "IdlerKyle",
+  "repo_path": "test.json",
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-05-18T12:26:46.067Z",
+      "createdAt": "2026-05-18T12:26:46.067Z",
+      "role": "workflow:owner",
+      "workflowId": "sU2y9wvfoqHEa29f",
+      "projectId": "vKFK6JoChnrNWPKt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-05-18T12:26:50.193Z",
+  "versionId": "cff9d8c2-83b8-4b6e-a220-2077f2b735dd"
+}
