@@ -1,16 +1,16 @@
 {
   "_links": {
     "self": "https://api.github.com/repos/IdlerKyle/N8NWorkflows/contents/Email%20TriAgent.json?ref=main",
-    "git": "https://api.github.com/repos/IdlerKyle/N8NWorkflows/git/blobs/a4a9c6f47cfac7e35600d72b60071bff1980b202",
+    "git": "https://api.github.com/repos/IdlerKyle/N8NWorkflows/git/blobs/13f88825963ddf86a22d3f4ad2ef6971c5231871",
     "html": "https://github.com/IdlerKyle/N8NWorkflows/blob/main/Email%20TriAgent.json"
   },
-  "download_url": "https://raw.githubusercontent.com/IdlerKyle/N8NWorkflows/main/Email%20TriAgent.json?token=A4EE6OJAKH7Z32HAO2XPYP3KCU233AA",
-  "git_url": "https://api.github.com/repos/IdlerKyle/N8NWorkflows/git/blobs/a4a9c6f47cfac7e35600d72b60071bff1980b202",
+  "download_url": "https://raw.githubusercontent.com/IdlerKyle/N8NWorkflows/main/Email%20TriAgent.json?token=A4EE6OJTQFCQJLYL7SJ7GATKCU34DAA",
+  "git_url": "https://api.github.com/repos/IdlerKyle/N8NWorkflows/git/blobs/13f88825963ddf86a22d3f4ad2ef6971c5231871",
   "html_url": "https://github.com/IdlerKyle/N8NWorkflows/blob/main/Email%20TriAgent.json",
   "name": "Email TriAgent.json",
   "path": "Email TriAgent.json",
-  "sha": "a4a9c6f47cfac7e35600d72b60071bff1980b202",
-  "size": 17259,
+  "sha": "13f88825963ddf86a22d3f4ad2ef6971c5231871",
+  "size": 944,
   "type": "file",
   "url": "https://api.github.com/repos/IdlerKyle/N8NWorkflows/contents/Email%20TriAgent.json?ref=main"
 }
