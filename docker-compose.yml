@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: crm_postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: crm_db
+      POSTGRES_USER: crm
+      POSTGRES_PASSWORD: strongpassword
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm -d crm_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: crm_n8n
+    restart: unless-stopped
+
+    ports:
+      - "5678:5678"
+
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_DATABASE: crm_db
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_USER: crm
+      DB_POSTGRESDB_PASSWORD: strongpassword
+
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: kyle@example.com
+      N8N_BASIC_AUTH_PASSWORD: supersecret123
+
+      N8N_ENCRYPTION_KEY: change-this-to-a-long-random-string
+
+      GENERIC_TIMEZONE: Asia/Manila
+      TZ: Asia/Manila
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  postgres_data:
+  n8n_data:
