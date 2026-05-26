@@ -1,0 +1,283 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "n8n": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'github subworkflow'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On clicking 'execute'": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an Email": {
+      "main": [
+        [
+          {
+            "node": "n8n",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify of Failure": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'github subworkflow'": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-05-19T17:38:38.655Z",
+  "id": "T7aTtz107XM7oBCX",
+  "isArchived": true,
+  "meta": null,
+  "name": "Back up your n8n workflows to Github",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "58ee17e7-0ded-45a6-a7a8-066b4062ea1a",
+      "name": "On clicking 'execute'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -160,
+        496
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "filters": {},
+        "requestOptions": {}
+      },
+      "id": "6e2efc34-8d07-4585-8f3a-d65f2b58ce9e",
+      "name": "n8n",
+      "type": "n8n-nodes-base.n8n",
+      "position": [
+        256,
+        608
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "6d71fdd3-a32e-45d8-b9ce-e5251a3ed0c0",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        464,
+        608
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 1,
+              "triggerAtMinute": 33
+            }
+          ]
+        }
+      },
+      "id": "a115df84-bd2c-4906-8235-428bc903659a",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -160,
+        704
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "content": "## Main workflow loop",
+        "height": 416.1856906618075,
+        "width": 1272.6408145680155,
+        "color": 7
+      },
+      "id": "2485f56f-a3c1-4ba7-aaa8-5f9d0a35466a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -192,
+        416
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "fromEmail": "khazix0303@gmail.com",
+        "toEmail": "path23532@gmail.com",
+        "subject": "Saving Workflows to Github",
+        "emailFormat": "text",
+        "text": "=Saving Workflow on {{ $json['Readable date'] }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        64,
+        576
+      ],
+      "id": "2a5e9cd7-c98b-4558-96af-28bafe0f017e",
+      "name": "Send an Email",
+      "webhookId": "4c00302b-8041-4408-a945-20f3e82fa1d8"
+    },
+    {
+      "parameters": {
+        "fromEmail": "khazix0303@gmail.com",
+        "toEmail": "path23532@gmail.com",
+        "subject": "Saving Workflows to Github",
+        "emailFormat": "text",
+        "text": "=✅ Backup has completed - {{ $('n8n').all().length }} workflows have been processed.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        688,
+        464
+      ],
+      "id": "26e6ef28-eb35-4dbc-ad90-c464f664b7dd",
+      "name": "Send Confirmation",
+      "webhookId": "4c00302b-8041-4408-a945-20f3e82fa1d8"
+    },
+    {
+      "parameters": {
+        "fromEmail": "khazix0303@gmail.com",
+        "toEmail": "path23532@gmail.com",
+        "subject": "Saving Workflows to Github",
+        "emailFormat": "text",
+        "text": "=Failed to backup {{ $('Loop Over Items').item.json.id }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        912,
+        640
+      ],
+      "id": "25e06f97-bca7-42e3-a7ee-94b1243588b5",
+      "name": "Notify of Failure",
+      "webhookId": "4c00302b-8041-4408-a945-20f3e82fa1d8"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "yu9wsg3VNNRABdWi",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/yu9wsg3VNNRABdWi",
+          "cachedResultName": "github subworkflow"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        704,
+        624
+      ],
+      "id": "d8679ce2-357a-4dba-bad4-e49ecef85921",
+      "name": "Call 'github subworkflow'",
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-05-19T17:38:38.655Z",
+      "createdAt": "2026-05-19T17:38:38.655Z",
+      "role": "workflow:owner",
+      "workflowId": "T7aTtz107XM7oBCX",
+      "projectId": "vKFK6JoChnrNWPKt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-05-20T10:07:22.244Z",
+  "versionId": "833c8505-129a-4e18-8230-1d1173e4ae61"
+}
