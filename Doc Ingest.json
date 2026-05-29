@@ -1,0 +1,84 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "createdAt": "2026-05-28T15:40:06.375Z",
+  "id": "bJ6K0it54vx3Ows2",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Doc Ingest",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -176,
+        0
+      ],
+      "id": "28290018-5da2-4277-a92b-540f4dc99d2f",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "202315d3-a046-4d09-bd5e-b616a37d0e4b",
+      "name": "Extract from File"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-05-28T15:40:06.375Z",
+      "createdAt": "2026-05-28T15:40:06.375Z",
+      "role": "workflow:owner",
+      "workflowId": "bJ6K0it54vx3Ows2",
+      "projectId": "vKFK6JoChnrNWPKt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-05-29T15:27:06.806Z",
+  "versionId": "9d94667b-7be8-4a2a-8aff-bd49fe9c70e2"
+}
