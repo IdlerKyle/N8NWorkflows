@@ -1,0 +1,173 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-05-30T05:53:02.390Z",
+  "id": "GdO7tvXl6QDIaxLZ",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Objection Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        48,
+        32
+      ],
+      "id": "61152c32-8cb8-43f0-bf29-1e2dfdc8533e",
+      "name": "When chat message received",
+      "webhookId": "f92b6eed-bc07-46e6-ac2e-869fbad03f02"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "\"You are a sales assistant for Angeles University Foundation. Your job is to help sales reps answer questions and handle objections from prospective students. Use the knowledge base tool to find relevant information from our sales scripts, SOPs, and FAQ sheets. Base your answers only on retrieved documents. If you can't find the answer, say so. Be concise and actionable.\"",
+        "options": {
+          "systemMessage": "= {{ $json.chatInput }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        256,
+        32
+      ],
+      "id": "ae9511d0-3a8b-4226-a73c-227ab6a7bd7c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        240
+      ],
+      "id": "743ca43f-212f-45be-9bf1-509c61d10629",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0sicXWlefaiG04U7",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "\"Contains sales scripts, SOPs, FAQ sheets, and university documents for Angeles University Foundation. Search this when the user asks about admissions requirements, entrance credentials, enrollment procedures, student objections, or any university policy.\"",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        384,
+        240
+      ],
+      "id": "7bc58db4-bf75-4e4b-ad22-81f7642b4f9a",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "l6fM0TcKhv8Mr1Is",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        384,
+        400
+      ],
+      "id": "9d0573f0-6944-45d8-a3fa-be736b1ceb7d",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0sicXWlefaiG04U7",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-05-30T05:53:02.390Z",
+      "createdAt": "2026-05-30T05:53:02.390Z",
+      "role": "workflow:owner",
+      "workflowId": "GdO7tvXl6QDIaxLZ",
+      "projectId": "vKFK6JoChnrNWPKt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-05-30T06:21:51.739Z",
+  "versionId": "b91f1f4e-821d-420c-bba4-9090cdf7f44a"
+}
