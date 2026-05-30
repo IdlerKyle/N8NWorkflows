@@ -46,6 +46,80 @@
           }
         ]
       ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search contacts": {
+      "main": [
+        [
+          {
+            "node": "If Contact Exists",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Parse Data": {
+      "main": [
+        [
+          {
+            "node": "If Email Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Email Exists": {
+      "main": [
+        [
+          {
+            "node": "Search contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Contact Exists": {
+      "main": [
+        [
+          {
+            "node": "Update Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2026-05-30T05:53:02.390Z",
@@ -73,9 +147,10 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "\"You are a sales assistant for Angeles University Foundation. Your job is to help sales reps answer questions and handle objections from prospective students. Use the knowledge base tool to find relevant information from our sales scripts, SOPs, and FAQ sheets. Base your answers only on retrieved documents. If you can't find the answer, say so. Be concise and actionable.\"",
+        "text": "={{ $json.chatInput }}",
         "options": {
-          "systemMessage": "= {{ $json.chatInput }}"
+          "systemMessage": "=You are a sales assistant for Angeles University Foundation. Your job is to help sales reps answer questions and handle objections from prospective students.\n\nIMPORTANT: At the start of every new conversation, ask the rep for:\n1. Prospect's full name\n2. Prospect's email address\n3. The objection or question they need help with\n\nOnce you have this info, use the knowledge base tool to find relevant information from our sales scripts, SOPs, and FAQ sheets. Base your answers only on retrieved documents. If you can't find the answer, say so. Be concise and actionable.\n\nWhen searching the knowledge base, search ONCE with the most relevant keywords. Do not repeat the same search. If no results are found, say you don't have that information.\n\nAt the END of every response, include a hidden data block in this exact format:\n[DATA]{\"name\":\"prospect name or null\",\"email\":\"email or null\",\"objection_type\":\"price|timing|competitor|authority|need|program|location|other|null\",\"summary\":\"one sentence summary of the objection\"}[/DATA]",
+          "maxIterations": 5
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -121,8 +196,8 @@
       "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
       "typeVersion": 1.3,
       "position": [
-        384,
-        240
+        576,
+        288
       ],
       "id": "7bc58db4-bf75-4e4b-ad22-81f7642b4f9a",
       "name": "Supabase Vector Store",
@@ -138,8 +213,8 @@
       "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
       "typeVersion": 1,
       "position": [
-        384,
-        400
+        592,
+        464
       ],
       "id": "9d0573f0-6944-45d8-a3fa-be736b1ceb7d",
       "name": "Embeddings Google Gemini",
@@ -147,6 +222,214 @@
         "googlePalmApi": {
           "id": "0sicXWlefaiG04U7",
           "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        368,
+        256
+      ],
+      "id": "7f97d905-2618-4594-a425-8843632894cf",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "authentication": "appToken",
+        "operation": "search",
+        "returnAll": true,
+        "filterGroupsUi": {
+          "filterGroupsValues": [
+            {
+              "filtersUi": {
+                "filterValues": [
+                  {
+                    "propertyName": "email|string",
+                    "value": "={{ $json.email }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "properties": [
+            "total_objections"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        16
+      ],
+      "id": "bf1ec1e7-ed23-43ed-8195-058985b8655e",
+      "name": "Search contacts",
+      "alwaysOutputData": true,
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "fxTLXLoMQt9HrLru",
+          "name": "HubSpot Service Key account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $input.first().json.output;\n\nconst match = output.match(/\\[DATA\\](.*?)\\[\\/DATA\\]/);\n\nif (match) {\n  const data = JSON.parse(match[1]);\n  return [{\n    json: {\n      name: data.name,\n      email: data.email,\n      objection_type: data.objection_type,\n      summary: data.summary,\n      full_response: output.replace(/\\[DATA\\].*?\\[\\/DATA\\]/, '').trim(),\n      timestamp: new Date().toISOString()\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    name: null,\n    email: null,\n    objection_type: null,\n    summary: null,\n    full_response: output,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        32
+      ],
+      "id": "3a50b3d3-59b6-461b-8f8f-ba4a30d18474",
+      "name": "Parse Data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "771db3b9-736b-4a27-8999-7e73f4c95661",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        976,
+        32
+      ],
+      "id": "d9d0ccea-cebd-4d44-b1aa-a643a6986b0f",
+      "name": "If Email Exists"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7e8bd422-313c-4861-83cb-74c0c815a47f",
+              "leftValue": "={{$json}}",
+              "rightValue": 0,
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1472,
+        0
+      ],
+      "id": "c76e6058-9967-4e43-8e2c-034d08ccd3ce",
+      "name": "If Contact Exists"
+    },
+    {
+      "parameters": {
+        "authentication": "appToken",
+        "email": "={{ $('If Email Exists').item.json.email }}",
+        "additionalFields": {
+          "customPropertiesUi": {
+            "customPropertiesValues": [
+              {
+                "property": "label_objection_type",
+                "value": "={{ $('If Email Exists').item.json.objection_type }}"
+              },
+              {
+                "property": "total_objections",
+                "value": "={{ Number($('Search contacts').item.json.properties.total_objections || 0) + 1 }}"
+              }
+            ]
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        1664,
+        -80
+      ],
+      "id": "47ef9c30-a241-4bd4-9ebe-957081073d38",
+      "name": "Update Contact",
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "fxTLXLoMQt9HrLru",
+          "name": "HubSpot Service Key account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "appToken",
+        "email": "={{ $('If Email Exists').item.json.email }}",
+        "additionalFields": {
+          "customPropertiesUi": {
+            "customPropertiesValues": [
+              {
+                "property": "label_objection_type",
+                "value": "={{ $('If Email Exists').item.json.objection_type }}"
+              },
+              {
+                "property": "total_objections",
+                "value": "1"
+              }
+            ]
+          },
+          "firstName": "={{ $('If Email Exists').item.json.name.split(' ')[0] }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        1664,
+        112
+      ],
+      "id": "ce1fd9ab-5c23-4e82-84e8-d2e93587add9",
+      "name": "Create Contact",
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "fxTLXLoMQt9HrLru",
+          "name": "HubSpot Service Key account"
         }
       }
     }
@@ -168,6 +451,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-05-30T06:21:51.739Z",
-  "versionId": "b91f1f4e-821d-420c-bba4-9090cdf7f44a"
+  "updatedAt": "2026-05-30T11:20:47.423Z",
+  "versionId": "f8c27b39-105d-478e-9899-09bce6ae507a"
 }
