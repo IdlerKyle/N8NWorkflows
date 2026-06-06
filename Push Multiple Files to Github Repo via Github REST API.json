@@ -367,8 +367,8 @@
       "name": "Sticky Note2",
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -1888,
-        208
+        -1920,
+        -64
       ],
       "typeVersion": 1
     },
@@ -824,6 +824,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-05-29T15:28:13.334Z",
-  "versionId": "59931164-22cd-4728-b07e-6c17a8df5018"
+  "updatedAt": "2026-06-06T13:36:10.812Z",
+  "versionId": "59031723-a9cf-48c2-ae92-aa56db05b544"
 }
