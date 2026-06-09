@@ -1,0 +1,196 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-06-09T04:05:08.970Z",
+  "id": "5bfMz38U7qK7VWWb",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI lead Scoring",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "75f527c8-eec9-4db5-bd3a-b105ce8cd808",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f46cb7e0-3590-46c4-8a98-68ab5e90fe27",
+      "name": "Webhook",
+      "webhookId": "75f527c8-eec9-4db5-bd3a-b105ce8cd808"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body }}",
+        "options": {
+          "systemMessage": "\"Here's a lead that just submitted a form. Score them 0 to 100 based on how likely they are to become a paying customer. Consider how detailed their answers are, whether they mentioned a budget or timeline, and how urgent they seem. Return the score, a category (hot, warm, cold, or unqualified), and a short explanation of why.\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "0b7e2742-2494-4caa-8fee-867460f48652",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        208
+      ],
+      "id": "4b7bcc3c-9b4b-4fcf-accc-f34dfcd64598",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0sicXWlefaiG04U7",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const text = item.json.output || \"\";\n\n  const parsed = {};\n\n  const scoreMatch = text.match(/\\*{0,2}Score:?\\*{0,2}\\s*(\\d+)\\s*\\/\\s*(\\d+)/i);\n  if (scoreMatch) {\n    parsed.score = parseInt(scoreMatch[1]);\n    parsed.score_max = parseInt(scoreMatch[2]);\n  }\n\n  const categoryMatch = text.match(/\\*{0,2}Category:?\\*{0,2}\\s*(.+)/i);\n  if (categoryMatch) {\n    parsed.category = categoryMatch[1].trim().replace(/\\*/g, \"\");\n  }\n\n  const explanationMatch = text.match(/\\*{0,2}Explanation:?\\*{0,2}\\s*\\n([\\s\\S]+)/i);\n  if (explanationMatch) {\n    parsed.explanation = explanationMatch[1].trim();\n  }\n\n  results.push({ json: parsed });\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "b345aab6-a804-4301-8c80-7281e68ebd19",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/contacts/?locationId=TMgjPLXCXs894yeNMndY&limit=1",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "={\n  \"firstName\": \"{{ $('Webhook').item.json.body.first_name }}\",\n  \"lastName\": \"{{ $('Webhook').item.json.body.last_name }}\",\n  \"email\": \"{{ $('Webhook').item.json.body.email }}\",\n  \"phone\": \"{{ $('Webhook').item.json.body.phone }}\",\n  \"locationId\": \"TMgjPLXCXs894yeNMndY\",\n  \"tags\": [\"ai-{{ $json.category }}\"],\n  \"source\": \"ai-lead-qualifier\"\n}",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        736,
+        16
+      ],
+      "id": "ce455de8-9009-4df7-b868-8f72715af8ff",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9jwkAceN91KRWzk6",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        512,
+        288
+      ],
+      "id": "67f337d3-270f-4d2c-b83d-37e7ea13c22e",
+      "name": "HTTP Request1"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-06-09T04:05:08.970Z",
+      "createdAt": "2026-06-09T04:05:08.970Z",
+      "role": "workflow:owner",
+      "workflowId": "5bfMz38U7qK7VWWb",
+      "projectId": "vKFK6JoChnrNWPKt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-06-09T12:11:14.014Z",
+  "versionId": "48484ac7-5a0d-4e2e-89ed-0dc72e53bf9a"
+}
