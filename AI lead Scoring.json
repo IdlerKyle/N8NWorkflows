@@ -29,14 +29,36 @@
       "main": [
         [
           {
-            "node": "Code in JavaScript",
+            "node": "Parse data into json",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Code in JavaScript": {
+    "Create Contact": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse data into json": {
+      "main": [
+        [
+          {
+            "node": "Create Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
       "main": [
         [
           {
@@ -110,21 +132,122 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const text = item.json.output || \"\";\n\n  const parsed = {};\n\n  const scoreMatch = text.match(/\\*{0,2}Score:?\\*{0,2}\\s*(\\d+)\\s*\\/\\s*(\\d+)/i);\n  if (scoreMatch) {\n    parsed.score = parseInt(scoreMatch[1]);\n    parsed.score_max = parseInt(scoreMatch[2]);\n  }\n\n  const categoryMatch = text.match(/\\*{0,2}Category:?\\*{0,2}\\s*(.+)/i);\n  if (categoryMatch) {\n    parsed.category = categoryMatch[1].trim().replace(/\\*/g, \"\");\n  }\n\n  const explanationMatch = text.match(/\\*{0,2}Explanation:?\\*{0,2}\\s*\\n([\\s\\S]+)/i);\n  if (explanationMatch) {\n    parsed.explanation = explanationMatch[1].trim();\n  }\n\n  results.push({ json: parsed });\n}\n\nreturn results;"
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Parse data into json').item.json.category }}",
+                    "rightValue": "Hot",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "87f16000-6136-40fc-994f-07232d1040ff"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Hot"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "07535625-a906-4620-95fc-150e77c88065",
+                    "leftValue": "={{ $('Parse data into json').item.json.category }}",
+                    "rightValue": "Warm",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Warm"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "06c1dec2-89f1-4be0-b8cd-375e9e0452ef",
+                    "leftValue": "={{ $('Parse data into json').item.json.category }}",
+                    "rightValue": "Cold",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cold"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "095983b3-78a9-47b7-9e62-88eb9c98fdf9",
+                    "leftValue": "={{ $('Parse data into json').item.json.category }}",
+                    "rightValue": "unqualified",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Unqualified"
+            }
+          ]
+        },
+        "options": {}
       },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
       "position": [
-        560,
-        0
+        944,
+        -32
       ],
-      "id": "b345aab6-a804-4301-8c80-7281e68ebd19",
-      "name": "Code in JavaScript"
+      "id": "d9284a67-905a-458d-a1c7-8ac851f6fcf4",
+      "name": "Switch"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "https://services.leadconnectorhq.com/contacts/?locationId=TMgjPLXCXs894yeNMndY&limit=1",
+        "url": "https://services.leadconnectorhq.com/contacts/",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendHeaders": true,
@@ -137,10 +260,36 @@
           ]
         },
         "sendBody": true,
-        "specifyBody": "={\n  \"firstName\": \"{{ $('Webhook').item.json.body.first_name }}\",\n  \"lastName\": \"{{ $('Webhook').item.json.body.last_name }}\",\n  \"email\": \"{{ $('Webhook').item.json.body.email }}\",\n  \"phone\": \"{{ $('Webhook').item.json.body.phone }}\",\n  \"locationId\": \"TMgjPLXCXs894yeNMndY\",\n  \"tags\": [\"ai-{{ $json.category }}\"],\n  \"source\": \"ai-lead-qualifier\"\n}",
         "bodyParameters": {
           "parameters": [
-            {}
+            {
+              "name": "firstName",
+              "value": "={{ $('Webhook').item.json.body.first_name }}"
+            },
+            {
+              "name": "lastName",
+              "value": "={{ $('Webhook').item.json.body.last_name }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $('Webhook').item.json.body.email }}"
+            },
+            {
+              "name": "locationId",
+              "value": "TMgjPLXCXs894yeNMndY"
+            },
+            {
+              "name": "phone",
+              "value": "=+639081988088"
+            },
+            {
+              "name": "tags",
+              "value": "=ai-{{ $('Parse data into json').item.json.category.toLowerCase() }}"
+            },
+            {
+              "name": "source",
+              "value": "ai-lead-qualifier"
+            }
           ]
         },
         "options": {}
@@ -148,10 +297,88 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        736,
-        16
+        752,
+        0
       ],
       "id": "ce455de8-9009-4df7-b868-8f72715af8ff",
+      "name": "Create Contact",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9jwkAceN91KRWzk6",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const text = item.json.output || \"\";\n\n  const parsed = {};\n\n  const scoreMatch = text.match(/\\*{0,2}Score:?\\*{0,2}\\s*(\\d+)\\s*\\/\\s*(\\d+)/i);\n  if (scoreMatch) {\n    parsed.score = parseInt(scoreMatch[1]);\n    parsed.score_max = parseInt(scoreMatch[2]);\n  }\n\n  const categoryMatch = text.match(/\\*{0,2}Category:?\\*{0,2}\\s*(.+)/i);\n  if (categoryMatch) {\n    parsed.category = categoryMatch[1].trim().replace(/\\*/g, \"\");\n  }\n\n  const explanationMatch = text.match(/\\*{0,2}Explanation:?\\*{0,2}\\s*\\n([\\s\\S]+)/i);\n  if (explanationMatch) {\n    parsed.explanation = explanationMatch[1].trim();\n  }\n\n  results.push({ json: parsed });\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "b345aab6-a804-4301-8c80-7281e68ebd19",
+      "name": "Parse data into json"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/opportunities/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "pipelineId",
+              "value": "6TNwRIZJ590YFpYFmsgs"
+            },
+            {
+              "name": "locationId",
+              "value": "TMgjPLXCXs894yeNMndY"
+            },
+            {
+              "name": "contactId",
+              "value": "={{ $('Create Contact').item.json.contact.id }}"
+            },
+            {
+              "name": "name",
+              "value": "=AI Qualified - {{ $('Webhook').item.json.body.first_name }} {{ $('Webhook').item.json.body.last_name }}"
+            },
+            {
+              "name": "pipelineStageId",
+              "value": "db1cb10e-f343-44fa-9d7e-37472b9f3649"
+            },
+            {
+              "name": "status",
+              "value": "open"
+            },
+            {
+              "name": "source",
+              "value": "ai-lead-qualifier"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1248,
+        -208
+      ],
+      "id": "6f4879b1-3434-45dc-a112-2e7d4a00113f",
       "name": "HTTP Request",
       "credentials": {
         "httpHeaderAuth": {
@@ -162,16 +389,44 @@
     },
     {
       "parameters": {
+        "url": "https://services.leadconnectorhq.com/opportunities/pipelines",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "locationId",
+              "value": "TMgjPLXCXs894yeNMndY"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        512,
-        288
+        640,
+        432
       ],
-      "id": "67f337d3-270f-4d2c-b83d-37e7ea13c22e",
-      "name": "HTTP Request1"
+      "id": "bcbc0fa2-d428-4229-a7ba-e3f513bf603e",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9jwkAceN91KRWzk6",
+          "name": "Header Auth account"
+        }
+      },
+      "disabled": true
     }
   ],
   "pinData": {},
@@ -191,6 +446,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-06-09T12:11:14.014Z",
-  "versionId": "48484ac7-5a0d-4e2e-89ed-0dc72e53bf9a"
+  "updatedAt": "2026-06-11T11:13:37.360Z",
+  "versionId": "3733ed95-a658-4b7d-96cf-c52f6b95d023"
 }
