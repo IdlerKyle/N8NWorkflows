@@ -62,7 +62,28 @@
       "main": [
         [
           {
-            "node": "HTTP Request",
+            "node": "Add Hot Lead Opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add Warm Lead Opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add Cold Lead Opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add Unqualified Opportunity",
             "type": "main",
             "index": 0
           }
@@ -324,6 +345,47 @@
     },
     {
       "parameters": {
+        "url": "https://services.leadconnectorhq.com/opportunities/pipelines",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "locationId",
+              "value": "TMgjPLXCXs894yeNMndY"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        608,
+        560
+      ],
+      "id": "bcbc0fa2-d428-4229-a7ba-e3f513bf603e",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9jwkAceN91KRWzk6",
+          "name": "Header Auth account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
         "method": "POST",
         "url": "https://services.leadconnectorhq.com/opportunities/",
         "authentication": "genericCredentialType",
@@ -379,7 +441,7 @@
         -208
       ],
       "id": "6f4879b1-3434-45dc-a112-2e7d4a00113f",
-      "name": "HTTP Request",
+      "name": "Add Hot Lead Opportunity",
       "credentials": {
         "httpHeaderAuth": {
           "id": "9jwkAceN91KRWzk6",
@@ -389,18 +451,10 @@
     },
     {
       "parameters": {
-        "url": "https://services.leadconnectorhq.com/opportunities/pipelines",
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/opportunities/",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "locationId",
-              "value": "TMgjPLXCXs894yeNMndY"
-            }
-          ]
-        },
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -410,23 +464,185 @@
             }
           ]
         },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "pipelineId",
+              "value": "6TNwRIZJ590YFpYFmsgs"
+            },
+            {
+              "name": "locationId",
+              "value": "TMgjPLXCXs894yeNMndY"
+            },
+            {
+              "name": "contactId",
+              "value": "={{ $('Create Contact').item.json.contact.id }}"
+            },
+            {
+              "name": "name",
+              "value": "=AI Qualified - {{ $('Webhook').item.json.body.first_name }} {{ $('Webhook').item.json.body.last_name }}"
+            },
+            {
+              "name": "pipelineStageId",
+              "value": "9cf24ea6-57cb-465d-a76f-9b07c1841d90"
+            },
+            {
+              "name": "status",
+              "value": "open"
+            },
+            {
+              "name": "source",
+              "value": "ai-lead-qualifier"
+            }
+          ]
+        },
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        640,
-        432
+        1248,
+        -32
       ],
-      "id": "bcbc0fa2-d428-4229-a7ba-e3f513bf603e",
-      "name": "HTTP Request1",
+      "id": "4498c37b-fad9-4c44-9a50-3679d43eadde",
+      "name": "Add Warm Lead Opportunity",
       "credentials": {
         "httpHeaderAuth": {
           "id": "9jwkAceN91KRWzk6",
           "name": "Header Auth account"
         }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/opportunities/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "pipelineId",
+              "value": "6TNwRIZJ590YFpYFmsgs"
+            },
+            {
+              "name": "locationId",
+              "value": "TMgjPLXCXs894yeNMndY"
+            },
+            {
+              "name": "contactId",
+              "value": "={{ $('Create Contact').item.json.contact.id }}"
+            },
+            {
+              "name": "name",
+              "value": "=AI Qualified - {{ $('Webhook').item.json.body.first_name }} {{ $('Webhook').item.json.body.last_name }}"
+            },
+            {
+              "name": "pipelineStageId",
+              "value": "3c5c6ab3-54d8-4ff5-9a13-de21c9a6144c"
+            },
+            {
+              "name": "status",
+              "value": "open"
+            },
+            {
+              "name": "source",
+              "value": "ai-lead-qualifier"
+            }
+          ]
+        },
+        "options": {}
       },
-      "disabled": true
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1248,
+        144
+      ],
+      "id": "8a3eac19-ca92-4a45-8420-84f251d70f80",
+      "name": "Add Cold Lead Opportunity",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9jwkAceN91KRWzk6",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/opportunities/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "pipelineId",
+              "value": "6TNwRIZJ590YFpYFmsgs"
+            },
+            {
+              "name": "locationId",
+              "value": "TMgjPLXCXs894yeNMndY"
+            },
+            {
+              "name": "contactId",
+              "value": "={{ $('Create Contact').item.json.contact.id }}"
+            },
+            {
+              "name": "name",
+              "value": "=AI Qualified - {{ $('Webhook').item.json.body.first_name }} {{ $('Webhook').item.json.body.last_name }}"
+            },
+            {
+              "name": "pipelineStageId",
+              "value": "74260513-f450-4f15-ab21-a1dd9a5144d5"
+            },
+            {
+              "name": "status",
+              "value": "open"
+            },
+            {
+              "name": "source",
+              "value": "ai-lead-qualifier"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1248,
+        336
+      ],
+      "id": "4e618bc4-fff3-4c3a-af10-1dd7224f83ff",
+      "name": "Add Unqualified Opportunity",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9jwkAceN91KRWzk6",
+          "name": "Header Auth account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -446,6 +662,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-06-11T11:13:37.360Z",
-  "versionId": "3733ed95-a658-4b7d-96cf-c52f6b95d023"
+  "updatedAt": "2026-06-12T09:04:45.143Z",
+  "versionId": "3d8003aa-255c-497b-9f56-4dd9da0779d0"
 }
