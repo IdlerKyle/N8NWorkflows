@@ -89,6 +89,17 @@
           }
         ]
       ]
+    },
+    "Add Cold Lead Opportunity": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2026-06-09T04:05:08.970Z",
@@ -301,7 +312,7 @@
             },
             {
               "name": "phone",
-              "value": "=+639081988088"
+              "value": "={{ $('Webhook').item.json.body.phone }}"
             },
             {
               "name": "tags",
@@ -643,6 +654,75 @@
           "name": "Header Auth account"
         }
       }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        816,
+        304
+      ],
+      "id": "9ab196c2-12ec-483c-b7d6-924e269be1b2",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "tableId": "=lead_scores",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "ghl_contact_id",
+              "fieldValue": "={{ $node[\"Create Contact\"].json[\"contact\"][\"id\"] }}"
+            },
+            {
+              "fieldId": "total_score",
+              "fieldValue": "={{ $node[\"Parse data into json\"].json[\"score\"] }}"
+            },
+            {
+              "fieldId": "ai_reasoning",
+              "fieldValue": "={{ $node[\"Parse data into json\"].json[\"explanation\"] }}"
+            },
+            {
+              "fieldId": "routing_status",
+              "fieldValue": "routed"
+            },
+            {
+              "fieldId": "routed_to_pipeline",
+              "fieldValue": "={{ $json.opportunity.pipelineId }}"
+            },
+            {
+              "fieldId": "routed_to_stage",
+              "fieldValue": "={{ $json.opportunity.pipelineStageId }}"
+            },
+            {
+              "fieldId": "raw_ai_response",
+              "fieldValue": "={{ $node[\"Parse data into json\"].json[\"category\"] }}"
+            },
+            {
+              "fieldId": "client_id",
+              "fieldValue": "={{ $json.opportunity.contactId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        144
+      ],
+      "id": "d03aa145-a06f-4649-95c8-2d59c144758d",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "enDKXItey4Xx5laN",
+          "name": "Supabase account 2"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -662,6 +742,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-06-12T09:04:45.143Z",
-  "versionId": "3d8003aa-255c-497b-9f56-4dd9da0779d0"
+  "updatedAt": "2026-06-12T12:25:42.615Z",
+  "versionId": "840be8c3-5796-4f3a-b904-93517bb9c741"
 }
