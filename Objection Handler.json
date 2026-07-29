@@ -238,7 +238,7 @@
         "promptType": "define",
         "text": "={{ $json.chatInput }}",
         "options": {
-          "systemMessage": "=You are a sales assistant for Angeles University Foundation. Your job is to help sales reps answer questions and handle objections from prospective students.\n\nIMPORTANT: At the start of every new conversation, ask the rep for:\n1. Prospect's full name\n2. Prospect's email address\n3. The objection or question they need help with\n\nOnce you have this info, use the knowledge base tool to find relevant information from our sales scripts, SOPs, and FAQ sheets. Base your answers only on retrieved documents. If you can't find the answer, say so. Be concise and actionable.\n\nWhen searching the knowledge base, search ONCE with the most relevant keywords. Do not repeat the same search. If no results are found, say you don't have that information.\n\nAt the END of every response, include a hidden data block in this exact format:\n[DATA]{\"name\":\"prospect name or null\",\"email\":\"email or null\",\"objection_type\":\"price|timing|competitor|authority|need|program|location|other|null\",\"summary\":\"one sentence summary of the objection\"}[/DATA]",
+          "systemMessage": "=You are a sales assistant for Angeles University Foundation. Your job is to help sales reps answer questions and handle objections from prospective students about admissions, enrollment, programs, policies, and objections.\n\nSTEP 1 — Check topic relevance first, before anything else:\nIf the rep's question is NOT related to Angeles University Foundation admissions, enrollment, programs, policies, or handling a prospect's objection, do NOT ask for name/email and do NOT use the knowledge base tool. Simply reply that you can only help with admissions-related questions, then include the [DATA] block below with all fields set to null.\n\nSTEP 2 — If the question IS on-topic, check whether you already have the prospect's name and email (check earlier messages in this conversation too, not just the current one):\nIf either is missing, your entire response should be a follow-up question asking for whichever is missing, plus the original question/objection if not yet given. Do NOT use the knowledge base tool yet. Include the [DATA] block with name and email set to real JSON null (not the text \"null\") until both are known.\n\nSTEP 3 — Once the question is on-topic AND you have both name and email:\nUse the knowledge base tool to find relevant information from our sales scripts, SOPs, and FAQ sheets. Base your answer only on retrieved documents — do not use outside/general knowledge, even if you know the answer. Search ONCE with the most relevant keywords; do not repeat the same search. If no relevant results are found, respond exactly with: \"I don't have that information in our current knowledge base — I'd recommend checking with your supervisor or the admissions office directly.\" Do not guess.\n\nBe concise and actionable in all responses.\n\nAt the END of every response, include a hidden data block in this exact format:\n[DATA]{\"name\": <string or null>, \"email\": <string or null>, \"objection_type\": <\"price\"|\"timing\"|\"competitor\"|\"authority\"|\"need\"|\"program\"|\"location\"|\"other\"|null>, \"summary\": <string or null>}[/DATA]\n\nCRITICAL: name and email must be real JSON null (no quotes) when unknown — never the text string \"null\".\n\nExample — off-topic question:\nRep asks: \"What's the capital of France?\"\nCorrect response: \"I'm only able to help with questions related to admissions, enrollment, and prospect objections for Angeles University Foundation. Let me know if you have a question along those lines!\"\n[DATA]{\"name\": null, \"email\": null, \"objection_type\": null, \"summary\": null}[/DATA]\n\nExample — on-topic, missing info:\nRep asks: \"How do I enroll?\"\nCorrect response: \"Welcome! Could you share the prospect's full name and email address so I can look into that for you?\"\n[DATA]{\"name\": null, \"email\": null, \"objection_type\": null, \"summary\": null}[/DATA]",
           "maxIterations": 5
         }
       },
@@ -370,12 +370,12 @@
     },
     {
       "parameters": {
-        "jsCode": "const output = $input.first().json.output;\n\nconst match = output.match(/\\[DATA\\](.*?)\\[\\/DATA\\]/);\n\nif (match) {\n  const data = JSON.parse(match[1]);\n  return [{\n    json: {\n      name: data.name,\n      email: data.email,\n      objection_type: data.objection_type,\n      summary: data.summary,\n      full_response: output.replace(/\\[DATA\\].*?\\[\\/DATA\\]/, '').trim(),\n      timestamp: new Date().toISOString()\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    name: null,\n    email: null,\n    objection_type: null,\n    summary: null,\n    full_response: output,\n    timestamp: new Date().toISOString()\n  }\n}];"
+        "jsCode": "const output = $input.first().json.output;\n\nconst match = output.match(/\\[DATA\\](.*?)\\[\\/DATA\\]/);\n\nif (match) {\n  const data = JSON.parse(match[1]);\n  const cleanText = output.replace(/\\[DATA\\].*?\\[\\/DATA\\]/, '').trim();\n  return [{\n    json: {\n      output: cleanText,\n      name: data.name,\n      email: data.email,\n      objection_type: data.objection_type,\n      summary: data.summary,\n      full_response: cleanText,\n      timestamp: new Date().toISOString()\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    output: output,\n    name: null,\n    email: null,\n    objection_type: null,\n    summary: null,\n    full_response: output,\n    timestamp: new Date().toISOString()\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        768,
+        656,
         32
       ],
       "id": "3a50b3d3-59b6-461b-8f8f-ba4a30d18474",
@@ -428,12 +428,11 @@
           "conditions": [
             {
               "id": "7e8bd422-313c-4861-83cb-74c0c815a47f",
-              "leftValue": "={{$json}}",
+              "leftValue": "={{ Object.keys($json).length }}",
               "rightValue": 0,
               "operator": {
-                "type": "string",
-                "operation": "exists",
-                "singleValue": true
+                "type": "number",
+                "operation": "gt"
               }
             }
           ],
@@ -446,7 +445,7 @@
       "typeVersion": 2.3,
       "position": [
         1472,
-        0
+        16
       ],
       "id": "c76e6058-9967-4e43-8e2c-034d08ccd3ce",
       "name": "If Contact Exists"
@@ -924,6 +923,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-06-06T13:35:30.178Z",
-  "versionId": "fca416ea-38b3-45e1-b22c-13c083aee78c"
+  "updatedAt": "2026-07-20T08:30:39.568Z",
+  "versionId": "39cd8078-113b-4516-8c3f-0b08683ba3fe"
 }
