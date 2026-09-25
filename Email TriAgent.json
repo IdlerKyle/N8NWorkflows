@@ -68,6 +68,7 @@
   "isArchived": false,
   "meta": null,
   "name": "Email TriAgent",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {
@@ -324,11 +325,11 @@
   },
   "shared": [
     {
-      "updatedAt": "2026-05-26T07:55:15.733Z",
-      "createdAt": "2026-05-26T07:55:15.733Z",
       "role": "workflow:owner",
       "workflowId": "8Ttr5xCtUEfBWzFi",
-      "projectId": "vKFK6JoChnrNWPKt"
+      "projectId": "vKFK6JoChnrNWPKt",
+      "createdAt": "2026-05-26T07:55:15.733Z",
+      "updatedAt": "2026-05-26T07:55:15.733Z"
     }
   ],
   "staticData": null,
