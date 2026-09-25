@@ -45,7 +45,6 @@
             "index": 0
           }
         ],
-        [],
         [
           {
             "node": "Reply to a message",
@@ -53,6 +52,7 @@
             "index": 0
           }
         ],
+        [],
         [
           {
             "node": "Send a message",
@@ -166,7 +166,9 @@
                   }
                 ],
                 "combinator": "and"
-              }
+              },
+              "renameOutput": true,
+              "outputKey": "SALES"
             },
             {
               "conditions": {
@@ -188,7 +190,9 @@
                   }
                 ],
                 "combinator": "and"
-              }
+              },
+              "renameOutput": true,
+              "outputKey": "SUPPORT"
             },
             {
               "conditions": {
@@ -210,7 +214,9 @@
                   }
                 ],
                 "combinator": "and"
-              }
+              },
+              "renameOutput": true,
+              "outputKey": "SPAM"
             },
             {
               "conditions": {
@@ -232,7 +238,9 @@
                   }
                 ],
                 "combinator": "and"
-              }
+              },
+              "renameOutput": true,
+              "outputKey": "URGENT"
             }
           ]
         },
@@ -257,8 +265,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        208,
-        -96
+        256,
+        -32
       ],
       "id": "91e4bd9f-21c8-4c58-befa-cd064f4db516",
       "name": "Reply to a message",
@@ -280,8 +288,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.2,
       "position": [
-        208,
-        368
+        256,
+        208
       ],
       "id": "feb73a8a-1a8b-49b5-acd3-f48f55045188",
       "name": "Send a message",
@@ -292,6 +300,21 @@
           "name": "Gmail account"
         }
       }
+    },
+    {
+      "parameters": {
+        "content": "## Managing Emails for the business\n\nMy grandfather business offers printing services now his emails has been the primary mode of communication between him and his clients. \n\nIssue spam sales emails urgent emails are flooding his inbox. ",
+        "height": 224,
+        "width": 352
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        112
+      ],
+      "id": "7ef86c03-6fb0-455c-b7c8-bd3b9e874482",
+      "name": "Sticky Note"
     }
   ],
   "pinData": {},
@@ -311,6 +334,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-05-26T07:55:17.191Z",
-  "versionId": "0fb329ff-b1d6-47f8-bcfe-fd082cd288ea"
+  "updatedAt": "2026-09-09T08:52:06.103Z",
+  "versionId": "68894e1e-d512-4725-bba3-a82cdabd5460"
 }
