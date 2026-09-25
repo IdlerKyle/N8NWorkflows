@@ -82,6 +82,7 @@
     "templateId": "rag-starter-template"
   },
   "name": "Demo: RAG in n8n",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {
@@ -303,11 +304,11 @@
   },
   "shared": [
     {
-      "updatedAt": "2026-05-28T15:49:06.540Z",
-      "createdAt": "2026-05-28T15:49:06.540Z",
       "role": "workflow:owner",
       "workflowId": "81agdbmKeEZsEgOE",
-      "projectId": "vKFK6JoChnrNWPKt"
+      "projectId": "vKFK6JoChnrNWPKt",
+      "createdAt": "2026-05-28T15:49:06.540Z",
+      "updatedAt": "2026-05-28T15:49:06.540Z"
     }
   ],
   "staticData": null,
