@@ -105,6 +105,7 @@
     "templateCredsSetupCompleted": true
   },
   "name": "Doc Ingest",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {
@@ -466,11 +467,11 @@
   },
   "shared": [
     {
-      "updatedAt": "2026-05-28T15:40:06.375Z",
-      "createdAt": "2026-05-28T15:40:06.375Z",
       "role": "workflow:owner",
       "workflowId": "bJ6K0it54vx3Ows2",
-      "projectId": "vKFK6JoChnrNWPKt"
+      "projectId": "vKFK6JoChnrNWPKt",
+      "createdAt": "2026-05-28T15:40:06.375Z",
+      "updatedAt": "2026-05-28T15:40:06.375Z"
     }
   ],
   "staticData": null,
