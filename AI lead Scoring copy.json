@@ -1,0 +1,693 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse data into json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Contact": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse data into json": {
+      "main": [
+        [
+          {
+            "node": "Create Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Add Hot Lead Opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add Warm Lead Opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add Cold Lead Opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add Unqualified Opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Cold Lead Opportunity": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-08-10T03:12:08.546Z",
+  "id": "kOB2YSznbCjXZemg",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "AI lead Scoring copy",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "d8b39ab3-7822-47b4-90f5-4e5073f7520a",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "bc787cf1-0c7c-4251-b587-6762500141d9",
+      "name": "Webhook",
+      "webhookId": "d8b39ab3-7822-47b4-90f5-4e5073f7520a"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body }}",
+        "options": {
+          "systemMessage": "\"Here's a lead that just submitted a form. Score them 0 to 100 based on how likely they are to become a paying customer. Consider how detailed their answers are, whether they mentioned a budget or timeline, and how urgent they seem. Return the score, a category (hot, warm, cold, or unqualified), and a short explanation of why.\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "ec2804f9-fd0c-4a6f-a9c7-b85a0462066f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        208
+      ],
+      "id": "e9079e2a-5fc5-4772-9971-65cca8298eae",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0sicXWlefaiG04U7",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Parse data into json').item.json.category }}",
+                    "rightValue": "Hot",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "87f16000-6136-40fc-994f-07232d1040ff"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Hot"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "07535625-a906-4620-95fc-150e77c88065",
+                    "leftValue": "={{ $('Parse data into json').item.json.category }}",
+                    "rightValue": "Warm",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Warm"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "06c1dec2-89f1-4be0-b8cd-375e9e0452ef",
+                    "leftValue": "={{ $('Parse data into json').item.json.category }}",
+                    "rightValue": "Cold",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cold"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "095983b3-78a9-47b7-9e62-88eb9c98fdf9",
+                    "leftValue": "={{ $('Parse data into json').item.json.category }}",
+                    "rightValue": "unqualified",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Unqualified"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        944,
+        -32
+      ],
+      "id": "162b8452-b9e7-46d6-83aa-799bfb3f759d",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/contacts/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "firstName",
+              "value": "={{ $('Webhook').item.json.body.first_name }}"
+            },
+            {
+              "name": "lastName",
+              "value": "={{ $('Webhook').item.json.body.last_name }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $('Webhook').item.json.body.email }}"
+            },
+            {
+              "name": "locationId",
+              "value": "TMgjPLXCXs894yeNMndY"
+            },
+            {
+              "name": "phone",
+              "value": "={{ $('Webhook').item.json.body.phone }}"
+            },
+            {
+              "name": "tags",
+              "value": "=ai-{{ $('Parse data into json').item.json.category.toLowerCase() }}"
+            },
+            {
+              "name": "source",
+              "value": "ai-lead-qualifier"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        752,
+        0
+      ],
+      "id": "cd21a649-27d3-4c77-bf28-8a53e9f19095",
+      "name": "Create Contact",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9jwkAceN91KRWzk6",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const text = item.json.output || \"\";\n\n  const parsed = {};\n\n  const scoreMatch = text.match(/\\*{0,2}Score:?\\*{0,2}\\s*(\\d+)\\s*\\/\\s*(\\d+)/i);\n  if (scoreMatch) {\n    parsed.score = parseInt(scoreMatch[1]);\n    parsed.score_max = parseInt(scoreMatch[2]);\n  }\n\n  const categoryMatch = text.match(/\\*{0,2}Category:?\\*{0,2}\\s*(.+)/i);\n  if (categoryMatch) {\n    parsed.category = categoryMatch[1].trim().replace(/\\*/g, \"\");\n  }\n\n  const explanationMatch = text.match(/\\*{0,2}Explanation:?\\*{0,2}\\s*\\n([\\s\\S]+)/i);\n  if (explanationMatch) {\n    parsed.explanation = explanationMatch[1].trim();\n  }\n\n  results.push({ json: parsed });\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "3853d028-8729-49fe-8cf6-c03800704594",
+      "name": "Parse data into json"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/opportunities/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "pipelineId",
+              "value": "6TNwRIZJ590YFpYFmsgs"
+            },
+            {
+              "name": "locationId",
+              "value": "TMgjPLXCXs894yeNMndY"
+            },
+            {
+              "name": "contactId",
+              "value": "={{ $('Create Contact').item.json.contact.id }}"
+            },
+            {
+              "name": "name",
+              "value": "=AI Qualified - {{ $('Webhook').item.json.body.first_name }} {{ $('Webhook').item.json.body.last_name }}"
+            },
+            {
+              "name": "pipelineStageId",
+              "value": "db1cb10e-f343-44fa-9d7e-37472b9f3649"
+            },
+            {
+              "name": "status",
+              "value": "open"
+            },
+            {
+              "name": "source",
+              "value": "ai-lead-qualifier"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1248,
+        -208
+      ],
+      "id": "2dfc9e83-f638-4a29-a4d9-0751b3c6c873",
+      "name": "Add Hot Lead Opportunity",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9jwkAceN91KRWzk6",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/opportunities/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "pipelineId",
+              "value": "6TNwRIZJ590YFpYFmsgs"
+            },
+            {
+              "name": "locationId",
+              "value": "TMgjPLXCXs894yeNMndY"
+            },
+            {
+              "name": "contactId",
+              "value": "={{ $('Create Contact').item.json.contact.id }}"
+            },
+            {
+              "name": "name",
+              "value": "=AI Qualified - {{ $('Webhook').item.json.body.first_name }} {{ $('Webhook').item.json.body.last_name }}"
+            },
+            {
+              "name": "pipelineStageId",
+              "value": "9cf24ea6-57cb-465d-a76f-9b07c1841d90"
+            },
+            {
+              "name": "status",
+              "value": "open"
+            },
+            {
+              "name": "source",
+              "value": "ai-lead-qualifier"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1248,
+        -32
+      ],
+      "id": "ce83c173-8931-4f9d-835e-932b4f9511b1",
+      "name": "Add Warm Lead Opportunity",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9jwkAceN91KRWzk6",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/opportunities/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "pipelineId",
+              "value": "6TNwRIZJ590YFpYFmsgs"
+            },
+            {
+              "name": "locationId",
+              "value": "TMgjPLXCXs894yeNMndY"
+            },
+            {
+              "name": "contactId",
+              "value": "={{ $('Create Contact').item.json.contact.id }}"
+            },
+            {
+              "name": "name",
+              "value": "=AI Qualified - {{ $('Webhook').item.json.body.first_name }} {{ $('Webhook').item.json.body.last_name }}"
+            },
+            {
+              "name": "pipelineStageId",
+              "value": "3c5c6ab3-54d8-4ff5-9a13-de21c9a6144c"
+            },
+            {
+              "name": "status",
+              "value": "open"
+            },
+            {
+              "name": "source",
+              "value": "ai-lead-qualifier"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1248,
+        144
+      ],
+      "id": "ffe51eb2-1267-4555-a850-6a0620db2b46",
+      "name": "Add Cold Lead Opportunity",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9jwkAceN91KRWzk6",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/opportunities/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "pipelineId",
+              "value": "6TNwRIZJ590YFpYFmsgs"
+            },
+            {
+              "name": "locationId",
+              "value": "TMgjPLXCXs894yeNMndY"
+            },
+            {
+              "name": "contactId",
+              "value": "={{ $('Create Contact').item.json.contact.id }}"
+            },
+            {
+              "name": "name",
+              "value": "=AI Qualified - {{ $('Webhook').item.json.body.first_name }} {{ $('Webhook').item.json.body.last_name }}"
+            },
+            {
+              "name": "pipelineStageId",
+              "value": "74260513-f450-4f15-ab21-a1dd9a5144d5"
+            },
+            {
+              "name": "status",
+              "value": "open"
+            },
+            {
+              "name": "source",
+              "value": "ai-lead-qualifier"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1248,
+        336
+      ],
+      "id": "2557f543-3268-4464-ad64-964d3fba9ba3",
+      "name": "Add Unqualified Opportunity",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9jwkAceN91KRWzk6",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "=lead_scores",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "ghl_contact_id",
+              "fieldValue": "={{ $node[\"Create Contact\"].json[\"contact\"][\"id\"] }}"
+            },
+            {
+              "fieldId": "total_score",
+              "fieldValue": "={{ $node[\"Parse data into json\"].json[\"score\"] }}"
+            },
+            {
+              "fieldId": "ai_reasoning",
+              "fieldValue": "={{ $node[\"Parse data into json\"].json[\"explanation\"] }}"
+            },
+            {
+              "fieldId": "routing_status",
+              "fieldValue": "routed"
+            },
+            {
+              "fieldId": "routed_to_pipeline",
+              "fieldValue": "={{ $json.opportunity.pipelineId }}"
+            },
+            {
+              "fieldId": "routed_to_stage",
+              "fieldValue": "={{ $json.opportunity.pipelineStageId }}"
+            },
+            {
+              "fieldId": "raw_ai_response",
+              "fieldValue": "={{ $node[\"Parse data into json\"].json[\"category\"] }}"
+            },
+            {
+              "fieldId": "client_id",
+              "fieldValue": "={{ $json.opportunity.contactId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        144
+      ],
+      "id": "4f95970a-e076-4491-a4c0-668b3a4f851d",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "enDKXItey4Xx5laN",
+          "name": "Supabase account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-08-10T03:12:08.546Z",
+      "createdAt": "2026-08-10T03:12:08.546Z",
+      "role": "workflow:owner",
+      "workflowId": "kOB2YSznbCjXZemg",
+      "projectId": "vKFK6JoChnrNWPKt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-08-10T03:12:08.546Z",
+  "versionId": "a922a64f-0082-4f08-9d4d-9ed1b4dbbeae"
+}
