@@ -1,0 +1,182 @@
+{
+  "active": false,
+  "activeVersion": null,
+  "activeVersionId": null,
+  "connections": {
+    "On Any Workflow Error": {
+      "main": [
+        [
+          {
+            "node": "Build Alert Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-09-25T06:49:02.171Z",
+  "id": "wV16kJSkYE4ef1VV",
+  "isArchived": false,
+  "meta": null,
+  "name": "Shared Error Notification Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Shared Error Notification Workflow\n\nCatches anything that escapes the per-node error handling built into the other 5 workflows (crashes between nodes, timeouts, unwired failures) and posts a structured alert with direct links back to the failing execution.\n\n**One-time linking step (can't be done via JSON import):** import this workflow, activate it, then on each of the other 5 workflows go to **Settings → Error Workflow** and select this workflow. n8n requires the target to already be a published workflow with an active Error Trigger, which is why this can't be pre-wired in the JSON.\n\n**Kept intentionally minimal** per n8n's own error-handling guidance: an error workflow should never make additional API calls that can themselves fail in complex ways, and should run fast. If you want the \"featureful\" version that also fetches the failing execution's input data via the n8n API, see the sticky note on the right.\n\n**Credentials to create:**\n- `slackApi` — \"Slack Bot Token\" (posts to #incidents)\n- `smtp` — \"Transactional Email\" (fallback if Slack itself is down — different channel than the monitored workflows, per best practice)",
+        "height": 460,
+        "width": 440,
+        "color": 7
+      },
+      "id": "429f79f6-0ecd-4d0a-9545-f695bfa728b7",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -256
+      ]
+    },
+    {
+      "parameters": {
+        "content": "**Featureful version:** insert an `n8n` node (resource: execution, operation: get, executionId: `{{ $json.execution.id }}`, Include Execution Details: true) between the trigger and the Set node to pull the full run data via `GET /executions/{id}?includeData=true`, then extract the failed node's actual input from `data.resultData.runData[<lastNodeExecuted>][0].source`. Requires an n8n API credential (Settings → API) and \"Save Execution Data\" enabled on the monitored workflows. Skipped here to keep this workflow fast and dependency-free, per n8n's own guidance.",
+        "height": 300,
+        "width": 340,
+        "color": 4
+      },
+      "id": "fc9aa232-4897-4891-89e7-9b3bcfd4ddf2",
+      "name": "Upgrade path (not built here)",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        -256
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "6782f63b-5f34-4fec-b44a-77765c290307",
+      "name": "On Any Workflow Error",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        192,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1",
+              "name": "workflowName",
+              "type": "string",
+              "value": "={{ $json.workflow.name }}"
+            },
+            {
+              "id": "e2",
+              "name": "workflowId",
+              "type": "string",
+              "value": "={{ $json.workflow.id }}"
+            },
+            {
+              "id": "e3",
+              "name": "editorUrl",
+              "type": "string",
+              "value": "={{ $json.execution.url.split('/executions/')[0] }}"
+            },
+            {
+              "id": "e4",
+              "name": "executionUrl",
+              "type": "string",
+              "value": "={{ $json.execution.url }}"
+            },
+            {
+              "id": "e5",
+              "name": "failedNode",
+              "type": "string",
+              "value": "={{ $json.execution.lastNodeExecuted }}"
+            },
+            {
+              "id": "e6",
+              "name": "errorMessage",
+              "type": "string",
+              "value": "={{ $json.execution.error?.message || \"unknown error\" }}"
+            },
+            {
+              "id": "e7",
+              "name": "timestamp",
+              "type": "string",
+              "value": "={{ DateTime.fromMillis($json.execution.error?.timestamp || Date.now()).toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e4664024-607f-492e-a02c-a8b32b7176d6",
+      "name": "Build Alert Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        432,
+        288
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "5d5213fa-a3b3-4f64-89f2-fc0d1ec715a6",
+      "name": "Post Critical Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        704,
+        288
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {},
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "fromEmail": "alerts@yourcompany.com",
+        "toEmail": "ops@yourcompany.com",
+        "subject": "={{ 'n8n workflow failure: ' + $('Build Alert Context').item.json.workflowName }}",
+        "html": "=<p>Slack alert delivery failed, falling back to email.</p><p><strong>Workflow:</strong> {{ $('Build Alert Context').item.json.workflowName }}<br><strong>Failed node:</strong> {{ $('Build Alert Context').item.json.failedNode }}<br><strong>Error:</strong> {{ $('Build Alert Context').item.json.errorMessage }}<br><strong>Execution:</strong> <a href=\\\"{{ $('Build Alert Context').item.json.executionUrl }}\\\">{{ $('Build Alert Context').item.json.executionUrl }}</a></p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "a13d2b26-3df2-4aa2-b0d3-2d3fe14e4918",
+      "name": "Fallback Email Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        896,
+        288
+      ],
+      "webhookId": "fc1e080e-87dd-427e-9ff9-d2edc68f61d6"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-09-25T06:49:02.171Z",
+      "createdAt": "2026-09-25T06:49:02.171Z",
+      "role": "workflow:owner",
+      "workflowId": "wV16kJSkYE4ef1VV",
+      "projectId": "vKFK6JoChnrNWPKt"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-09-25T06:49:17.715Z",
+  "versionId": "f3282d03-cffc-4cad-82ae-13732cc4e12c"
+}
