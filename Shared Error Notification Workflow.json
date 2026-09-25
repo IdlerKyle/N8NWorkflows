@@ -13,13 +13,39 @@
           }
         ]
       ]
+    },
+    "Build Alert Context": {
+      "main": [
+        [
+          {
+            "node": "Post Critical Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Critical Alert": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Fallback Email Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "createdAt": "2026-09-25T06:49:02.171Z",
-  "id": "wV16kJSkYE4ef1VV",
+  "createdAt": "2026-09-25T07:11:18.725Z",
+  "id": "AmXd2igVPypnOOJq",
   "isArchived": false,
-  "meta": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
   "name": "Shared Error Notification Workflow",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {
@@ -28,13 +54,13 @@
         "width": 440,
         "color": 7
       },
-      "id": "429f79f6-0ecd-4d0a-9545-f695bfa728b7",
+      "id": "6d393908-29de-43c6-ba39-72c9a923c8a6",
       "name": "Overview",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        208,
-        -256
+        288,
+        -176
       ]
     },
     {
@@ -44,24 +70,24 @@
         "width": 340,
         "color": 4
       },
-      "id": "fc9aa232-4897-4891-89e7-9b3bcfd4ddf2",
+      "id": "736cd581-fe1a-4b84-9ac8-efd7810743e9",
       "name": "Upgrade path (not built here)",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1232,
-        -256
+        1312,
+        -176
       ]
     },
     {
       "parameters": {},
-      "id": "6782f63b-5f34-4fec-b44a-77765c290307",
+      "id": "2136802d-64e5-41b1-8ead-39f90fd23db1",
       "name": "On Any Workflow Error",
       "type": "n8n-nodes-base.errorTrigger",
       "typeVersion": 1,
       "position": [
-        192,
-        288
+        256,
+        352
       ]
     },
     {
@@ -114,50 +140,73 @@
         },
         "options": {}
       },
-      "id": "e4664024-607f-492e-a02c-a8b32b7176d6",
+      "id": "1229b577-25e3-4b0b-8673-6a9339ed4fb6",
       "name": "Build Alert Context",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        432,
-        288
+        528,
+        352
       ]
     },
     {
-      "parameters": {},
-      "id": "5d5213fa-a3b3-4f64-89f2-fc0d1ec715a6",
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#incidents"
+        },
+        "text": "=🔥 Workflow failure: *{{ $('Build Alert Context').item.json.workflowName }}* (`{{ $('Build Alert Context').item.json.workflowId }}`)\\nWorkflow: {{ $('Build Alert Context').item.json.editorUrl }}\\nFailed node: `{{ $('Build Alert Context').item.json.failedNode }}`\\nError: {{ $('Build Alert Context').item.json.errorMessage }}\\nExecution: {{ $('Build Alert Context').item.json.executionUrl }}\\nTime: {{ $('Build Alert Context').item.json.timestamp }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "dd1e7482-ca97-4ef3-99bd-b89278ed588a",
       "name": "Post Critical Alert",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.7,
       "position": [
-        704,
-        288
+        784,
+        352
       ],
       "retryOnFail": true,
       "maxTries": 2,
       "waitBetweenTries": 3000,
-      "credentials": {},
+      "webhookId": "2d2b44c6-6cdf-4eac-afbb-809e4681683e",
+      "credentials": {
+        "slackApi": {
+          "id": "KvlznY9l2Mce6aun",
+          "name": "Slack account"
+        }
+      },
       "onError": "continueErrorOutput"
     },
     {
       "parameters": {
         "fromEmail": "alerts@yourcompany.com",
-        "toEmail": "ops@yourcompany.com",
+        "toEmail": "khazix0303@gmail.com",
         "subject": "={{ 'n8n workflow failure: ' + $('Build Alert Context').item.json.workflowName }}",
         "html": "=<p>Slack alert delivery failed, falling back to email.</p><p><strong>Workflow:</strong> {{ $('Build Alert Context').item.json.workflowName }}<br><strong>Failed node:</strong> {{ $('Build Alert Context').item.json.failedNode }}<br><strong>Error:</strong> {{ $('Build Alert Context').item.json.errorMessage }}<br><strong>Execution:</strong> <a href=\\\"{{ $('Build Alert Context').item.json.executionUrl }}\\\">{{ $('Build Alert Context').item.json.executionUrl }}</a></p>",
         "options": {
           "appendAttribution": false
         }
       },
-      "id": "a13d2b26-3df2-4aa2-b0d3-2d3fe14e4918",
+      "id": "cb956d25-9eff-4ee5-a1a7-fdcd7e49b672",
       "name": "Fallback Email Alert",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        896,
-        288
+        1056,
+        368
       ],
-      "webhookId": "fc1e080e-87dd-427e-9ff9-d2edc68f61d6"
+      "webhookId": "b1cedd05-278b-4f4a-8ded-df829329b94e",
+      "credentials": {
+        "smtp": {
+          "id": "KuTGG9wgptJBLVtk",
+          "name": "SMTP account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -167,16 +216,16 @@
   },
   "shared": [
     {
-      "updatedAt": "2026-09-25T06:49:02.171Z",
-      "createdAt": "2026-09-25T06:49:02.171Z",
       "role": "workflow:owner",
-      "workflowId": "wV16kJSkYE4ef1VV",
-      "projectId": "vKFK6JoChnrNWPKt"
+      "workflowId": "AmXd2igVPypnOOJq",
+      "projectId": "vKFK6JoChnrNWPKt",
+      "createdAt": "2026-09-25T07:11:18.725Z",
+      "updatedAt": "2026-09-25T07:11:18.725Z"
     }
   ],
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-09-25T06:49:17.715Z",
-  "versionId": "f3282d03-cffc-4cad-82ae-13732cc4e12c"
+  "updatedAt": "2026-09-25T09:42:19.894Z",
+  "versionId": "994340da-9110-4cc8-a51a-17accfc5a6b0"
 }
