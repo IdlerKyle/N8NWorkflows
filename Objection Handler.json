@@ -218,6 +218,7 @@
     "templateCredsSetupCompleted": true
   },
   "name": "Objection Handler",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {
@@ -913,11 +914,11 @@
   },
   "shared": [
     {
-      "updatedAt": "2026-05-30T05:53:02.390Z",
-      "createdAt": "2026-05-30T05:53:02.390Z",
       "role": "workflow:owner",
       "workflowId": "GdO7tvXl6QDIaxLZ",
-      "projectId": "vKFK6JoChnrNWPKt"
+      "projectId": "vKFK6JoChnrNWPKt",
+      "createdAt": "2026-05-30T05:53:02.390Z",
+      "updatedAt": "2026-05-30T05:53:02.390Z"
     }
   ],
   "staticData": null,
