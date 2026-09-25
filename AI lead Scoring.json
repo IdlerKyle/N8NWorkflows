@@ -92,13 +92,7 @@
     },
     "Add Cold Lead Opportunity": {
       "main": [
-        [
-          {
-            "node": "Create a row",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     }
   },
@@ -353,47 +347,6 @@
       ],
       "id": "b345aab6-a804-4301-8c80-7281e68ebd19",
       "name": "Parse data into json"
-    },
-    {
-      "parameters": {
-        "url": "https://services.leadconnectorhq.com/opportunities/pipelines",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "locationId",
-              "value": "TMgjPLXCXs894yeNMndY"
-            }
-          ]
-        },
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Version",
-              "value": "2021-07-28"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        608,
-        560
-      ],
-      "id": "bcbc0fa2-d428-4229-a7ba-e3f513bf603e",
-      "name": "HTTP Request1",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "9jwkAceN91KRWzk6",
-          "name": "Header Auth account"
-        }
-      },
-      "disabled": true
     },
     {
       "parameters": {
@@ -654,75 +607,6 @@
           "name": "Header Auth account"
         }
       }
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        816,
-        304
-      ],
-      "id": "9ab196c2-12ec-483c-b7d6-924e269be1b2",
-      "name": "HTTP Request"
-    },
-    {
-      "parameters": {
-        "tableId": "=lead_scores",
-        "fieldsUi": {
-          "fieldValues": [
-            {
-              "fieldId": "ghl_contact_id",
-              "fieldValue": "={{ $node[\"Create Contact\"].json[\"contact\"][\"id\"] }}"
-            },
-            {
-              "fieldId": "total_score",
-              "fieldValue": "={{ $node[\"Parse data into json\"].json[\"score\"] }}"
-            },
-            {
-              "fieldId": "ai_reasoning",
-              "fieldValue": "={{ $node[\"Parse data into json\"].json[\"explanation\"] }}"
-            },
-            {
-              "fieldId": "routing_status",
-              "fieldValue": "routed"
-            },
-            {
-              "fieldId": "routed_to_pipeline",
-              "fieldValue": "={{ $json.opportunity.pipelineId }}"
-            },
-            {
-              "fieldId": "routed_to_stage",
-              "fieldValue": "={{ $json.opportunity.pipelineStageId }}"
-            },
-            {
-              "fieldId": "raw_ai_response",
-              "fieldValue": "={{ $node[\"Parse data into json\"].json[\"category\"] }}"
-            },
-            {
-              "fieldId": "client_id",
-              "fieldValue": "={{ $json.opportunity.contactId }}"
-            }
-          ]
-        }
-      },
-      "type": "n8n-nodes-base.supabase",
-      "typeVersion": 1,
-      "position": [
-        1456,
-        144
-      ],
-      "id": "d03aa145-a06f-4649-95c8-2d59c144758d",
-      "name": "Create a row",
-      "credentials": {
-        "supabaseApi": {
-          "id": "enDKXItey4Xx5laN",
-          "name": "Supabase account 2"
-        }
-      }
     }
   ],
   "pinData": {},
@@ -742,6 +626,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2026-06-12T12:25:42.615Z",
-  "versionId": "840be8c3-5796-4f3a-b904-93517bb9c741"
+  "updatedAt": "2026-08-10T04:37:33.020Z",
+  "versionId": "b93365e0-c3b3-4496-a48e-f1cfbf06fb78"
 }
