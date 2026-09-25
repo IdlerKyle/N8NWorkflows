@@ -291,6 +291,7 @@
   "isArchived": false,
   "meta": null,
   "name": "Push Multiple Files to Github Repo via Github REST API",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {},
@@ -814,11 +815,11 @@
   },
   "shared": [
     {
-      "updatedAt": "2026-05-26T09:02:31.489Z",
-      "createdAt": "2026-05-26T09:02:31.489Z",
       "role": "workflow:owner",
       "workflowId": "4lwPuElEkvNym8Kb",
-      "projectId": "vKFK6JoChnrNWPKt"
+      "projectId": "vKFK6JoChnrNWPKt",
+      "createdAt": "2026-05-26T09:02:31.489Z",
+      "updatedAt": "2026-05-26T09:02:31.489Z"
     }
   ],
   "staticData": null,
