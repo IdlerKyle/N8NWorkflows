@@ -103,6 +103,7 @@
     "templateCredsSetupCompleted": true
   },
   "name": "GHL upload",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {
@@ -617,11 +618,11 @@
   },
   "shared": [
     {
-      "updatedAt": "2026-08-28T06:52:07.259Z",
-      "createdAt": "2026-08-28T06:52:07.259Z",
       "role": "workflow:owner",
       "workflowId": "1TZGYXSnLv1dSknH",
-      "projectId": "vKFK6JoChnrNWPKt"
+      "projectId": "vKFK6JoChnrNWPKt",
+      "createdAt": "2026-08-28T06:52:07.259Z",
+      "updatedAt": "2026-08-28T06:52:07.259Z"
     }
   ],
   "staticData": null,
