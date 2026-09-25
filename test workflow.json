@@ -31,6 +31,7 @@
   "isArchived": false,
   "meta": null,
   "name": "test workflow",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {},
@@ -78,11 +79,11 @@
   },
   "shared": [
     {
-      "updatedAt": "2026-05-26T08:31:49.249Z",
-      "createdAt": "2026-05-26T08:31:49.249Z",
       "role": "workflow:owner",
       "workflowId": "4ii2ozrgGGJG0yY4",
-      "projectId": "vKFK6JoChnrNWPKt"
+      "projectId": "vKFK6JoChnrNWPKt",
+      "createdAt": "2026-05-26T08:31:49.249Z",
+      "updatedAt": "2026-05-26T08:31:49.249Z"
     }
   ],
   "staticData": null,
