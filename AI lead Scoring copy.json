@@ -109,6 +109,7 @@
     "templateCredsSetupCompleted": true
   },
   "name": "AI lead Scoring copy",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {
@@ -678,11 +679,11 @@
   },
   "shared": [
     {
-      "updatedAt": "2026-08-10T03:12:08.546Z",
-      "createdAt": "2026-08-10T03:12:08.546Z",
       "role": "workflow:owner",
       "workflowId": "kOB2YSznbCjXZemg",
-      "projectId": "vKFK6JoChnrNWPKt"
+      "projectId": "vKFK6JoChnrNWPKt",
+      "createdAt": "2026-08-10T03:12:08.546Z",
+      "updatedAt": "2026-08-10T03:12:08.546Z"
     }
   ],
   "staticData": null,
