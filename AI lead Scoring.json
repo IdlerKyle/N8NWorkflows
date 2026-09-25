@@ -103,6 +103,7 @@
     "templateCredsSetupCompleted": true
   },
   "name": "AI lead Scoring",
+  "nodeGroups": [],
   "nodes": [
     {
       "parameters": {
@@ -616,11 +617,11 @@
   },
   "shared": [
     {
-      "updatedAt": "2026-06-09T04:05:08.970Z",
-      "createdAt": "2026-06-09T04:05:08.970Z",
       "role": "workflow:owner",
       "workflowId": "5bfMz38U7qK7VWWb",
-      "projectId": "vKFK6JoChnrNWPKt"
+      "projectId": "vKFK6JoChnrNWPKt",
+      "createdAt": "2026-06-09T04:05:08.970Z",
+      "updatedAt": "2026-06-09T04:05:08.970Z"
     }
   ],
   "staticData": null,
